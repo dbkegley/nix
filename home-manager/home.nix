@@ -47,7 +47,7 @@ in {
       syntaxHighlighting.enable = true;
       shellAliases = {
         ll = "ls -l";
-        update = "home-manager switch --flake nix/#${me}";
+        hm-update = "home-manager switch --flake $HOME/nix/#${me}";
       };
       history = {
         extended = true;
