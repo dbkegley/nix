@@ -1,0 +1,51 @@
+theme = "catppuccin_frappe_custom"
+
+[editor]
+completion-timeout = 100
+completion-replace = true
+# end-of-line-diagnostics = "hint"
+popup-border = "all"
+
+# [editor.inline-diagnostics]
+# cursor-line = "warning" # show warnings and errors on the cursorline inline
+
+[editor.lsp]
+display-inlay-hints = true
+
+[editor.auto-save]
+after-delay.enable = true
+
+[editor.indent-guides]
+render = true
+character = "⸽" # some characters that work well: "▏", "╎", "┆", "┊", "⸽"
+skip-levels = 1
+
+[editor.soft-wrap]
+enable = true
+
+[keys.normal]
+J = ["select_line_below"]
+K = ["select_line_above"]
+# C-g = [
+#     ":write-all",
+#     ":insert-output claude >/dev/tty",
+#     ":redraw",
+#     ":reload-all"
+# ]
+
+# [keys.normal.space]
+# e = [
+#   ":sh rm -f /tmp/unique-file-h21a434",
+#   ":insert-output yazi '%{buffer_name}' --chooser-file=/tmp/unique-file-h21a434",
+#   ":insert-output echo \"x1b[?1049h\" > /dev/tty",
+#   ":open %sh{cat /tmp/unique-file-h21a434}",
+#   ":redraw",
+# ]
+
+[keys.select]
+J = ["select_line_below"]
+K = ["select_line_above"]
+
+[keys.normal.G]
+b = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}" # git blame
+a = ":sh git add %{buffer_name}" # git add 

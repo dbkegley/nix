@@ -1,0 +1,63 @@
+c# run `helix-gpt --authCopilot`
+# and save result in `COPILOT_API_KEY`
+[language-server.gpt]
+command = "helix-gpt"
+args = ["--handler", "copilot"]
+
+[language-server.rust-analyzer.config.check]
+command = "clippy"
+
+[[language]]
+name = "go"
+auto-format = true
+formatter = { command = "goimports" }
+language-servers = [ "gpt", "gopls", "golangci-lint-lsp" ]
+
+# https://golangci-lint.run/welcome/install/#local-installation
+# https://github.com/golang/vscode-go/issues/3732#issuecomment-2758960259
+[language-server.golangci-lint-lsp.config]
+command = ["golangci-lint", "run", "--output.json.path=stdout", "--show-stats=false", "--issues-exit-code=1"]
+
+# uv tool install pyright
+# uv tool install ruff
+# or install in .venv and start helix with: uv run hx ./
+# https://docs.astral.sh/ruff/editors/setup/#helix
+[[language]]
+name = "python"
+auto-format = true
+language-servers = [ "gpt", "pyright", "ruff" ]
+
+[language-server.pyright.config.python.analysis]
+typeCheckingMode = "basic"
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
+# npm install -g typescript typescript-language-server
+# npm install -g @vue/language-server
+# https://github.com/helix-editor/helix/discussions/10691#discussioncomment-10688441
+# https://github.com/helix-editor/helix/wiki/Language-Server-Configurations#vue
+[[language-server.typescript-language-server.config.plugins]]
+name = "@vue/typescript-plugin"
+location = "/home/david/.nvm/versions/node/v22.14.0/lib/node_modules/@vue/language-server/"
+languages = ["vue"]
+
+[language-server.vuels.config]
+# vue = { hybridMode = false }
+typescript = { tsdk = "/home/david/.nvm/versions/node/v22.14.0/lib/node_modules/typescript/lib/" }
+
+# [language-server.typescript-language-server.config.vue.inlayHints]
+# includeInlayEnumMemberValueHints = true
+# includeInlayFunctionLikeReturnTypeHints = true
+# includeInlayFunctionParameterTypeHints = true
+# includeInlayParameterNameHints = "all"
+# includeInlayParameterNameHintsWhenArgumentMatchesName = true
+# includeInlayPropertyDeclarationTypeHints = true
+# includeInlayVariableTypeHints = true
+
+[[language]]
+name = "vue"
+# auto-format = true
+# formatter = { command = "prettier", args = ["--parser", "vue"] }
+language-servers = [ "gpt", "vuels", "typescript-language-server" ]
