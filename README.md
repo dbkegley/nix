@@ -27,4 +27,6 @@ usermod -s ~/.nix-profile/bin/zsh $USER
 hm-update
 ```
 
-> ref: <https://gist.github.com/stuart-warren/66bea8c9b23fdac317598ea46b3b97d0>
+> nix: <https://gist.github.com/stuart-warren/66bea8c9b23fdac317598ea46b3b97d0>
+> nix-darwin: <https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050>
+> nix-darwin + nixos: <https://github.com/dustinlyons/nixos-config?tab=readme-ov-file>
