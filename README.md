@@ -1,4 +1,4 @@
-# Setup
+
 
 ```bash
 # install nix (multi-user)
@@ -30,3 +30,11 @@ hm-update
 > nix: <https://gist.github.com/stuart-warren/66bea8c9b23fdac317598ea46b3b97d0>
 > nix-darwin: <https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050>
 > nix-darwin + nixos: <https://github.com/dustinlyons/nixos-config?tab=readme-ov-file>
+> nix-darwin + nixos + wsl2: <https://github.com/dc-tec/nixos-config/tree/main?tab=readme-ov-file>
+
+
+# Mac
+
+```bash
+sudo darwin-rebuild switch --flake ./nix-darwin
+```
