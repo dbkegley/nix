@@ -1,4 +1,4 @@
-
+# Linux
 
 ```bash
 # install nix (multi-user)
@@ -27,14 +27,28 @@ usermod -s ~/.nix-profile/bin/zsh $USER
 hm-update
 ```
 
-> nix: <https://gist.github.com/stuart-warren/66bea8c9b23fdac317598ea46b3b97d0>
-> nix-darwin: <https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050>
-> nix-darwin + nixos: <https://github.com/dustinlyons/nixos-config?tab=readme-ov-file>
-> nix-darwin + nixos + wsl2: <https://github.com/dc-tec/nixos-config/tree/main?tab=readme-ov-file>
 
+# MacOS
 
-# Mac
+1. [Install nix](https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#determinate-nix-installer)
 
 ```bash
-sudo darwin-rebuild switch --flake ./nix-darwin
+# select no if asked about installing Determinate Nix (use vanilla)
+curl -fsSL https://install.determinate.systems/nix | sh -s -- install
 ```
+
+2. [Install nix-darwin](https://github.com/nix-darwin/nix-darwin?tab=readme-ov-file#step-2-installing-nix-darwin)
+
+```bash
+nix run nix-darwin/nix-darwin-25.05#darwin-rebuild -- switch
+```
+
+3. Build the system
+
+```bash
+darwin-rebuild switch --flake .#david-mbp
+```
+
+### Credits
+
+The initial version of this configuration was copied from [dc-tec](https://github.com/dc-tec/nixos-config)
