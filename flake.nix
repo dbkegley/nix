@@ -1,5 +1,5 @@
 {
-  description = "Kegs  NixOS Configuration";
+  description = "Kegs NixOS Configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -48,11 +48,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # WSL2 flake
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # # WSL2 flake
+    # nixos-wsl = {
+    #   url = "github:nix-community/NixOS-WSL";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     # MacOS flakes
     darwin = {
@@ -89,16 +89,16 @@
       nixpkgs,
       home-manager,
       # impermanence,
-      hyprland,
-      hyprpaper,
-      hyprlock,
+      # hyprland,
+      # hyprpaper,
+      # hyprlock,
       # nixvim,
       # nur,
       # niks-cli,
-      nix-colors,
-      catppuccin,
+      # nix-colors,
+      # catppuccin,
       # sops-nix,
-      nixos-wsl,
+      # nixos-wsl,
       # firefox-addons,
       darwin,
       # ndg,
@@ -106,9 +106,12 @@
     }@inputs:
     let
       inherit (self) outputs;
+      systemLinux = "x86_64-linux";
+      systemDarwin = "x86_64-darwin";
+      
       forAllSystems = nixpkgs.lib.genAttrs [
-        "x86_64-linux"
-        "x86_64-darwin"
+        systemLinux
+        systemDarwin
       ];
 
       lib =
@@ -143,16 +146,15 @@
         ./modules/shared
       ];
 
-      nixosModules = [
-        # sops-nix.nixosModules.sops
-        # impermanence.nixosModule
-        home-manager.nixosModules.home-manager
-        catppuccin.nixosModules.catppuccin
-        nixos-wsl.nixosModules.default
-        # nur.modules.nixos.default
-
-        # ./modules/nixos
-      ];
+      # nixosModules = [
+      #   sops-nix.nixosModules.sops
+      #   impermanence.nixosModule
+      #   home-manager.nixosModules.home-manager
+      #   catppuccin.nixosModules.catppuccin
+      #   nixos-wsl.nixosModules.default
+      #   nur.modules.nixos.default
+      #   ./modules/nixos
+      # ];
 
       darwinModules = [
         home-manager.darwinModules.home-manager
@@ -191,7 +193,7 @@
       #     default = pkgs.mkShell {
       #       NIX_CONFIG = "experimental-features = nix-command flakes";
       #       nativeBuildInputs = [
-      #         pkgs.nix
+      #         # pkgs.nix
       #         pkgs.home-manager
       #         pkgs.git
       #         # pkgs.age
@@ -216,9 +218,21 @@
         david-mbp = darwin.lib.darwinSystem {
           specialArgs = {
             inherit inputs outputs;
-            lib = lib "x86_64-darwin";
+            lib = lib "${systemDarwin}";
           };
           modules = sharedModules ++ darwinModules ++ [ ./machines/darwin/default.nix ];
+        };
+      };
+      
+      homeConfigurations = {
+        home = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${systemLinux};
+          extraSpecialArgs = {
+            inherit inputs outputs;
+            sharedLib = lib "${systemLinux}";
+            imports = [ ./machines/wsl2/default.nix ];
+          };
+          modules = [ ./modules/shared ] ;
         };
       };
 
