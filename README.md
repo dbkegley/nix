@@ -52,3 +52,6 @@ darwin-rebuild switch --flake .#david-mbp
 ### Credits
 
 The initial version of this configuration was copied from [dc-tec](https://github.com/dc-tec/nixos-config)
+
+> for home+nix-darwin config from same top level flake - <https://github.com/grapefizz/dotfiles>
+>   see also: <https://github.com/dc-tec/nixos-config/issues/76#issuecomment-3156475099>
