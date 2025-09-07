@@ -1,0 +1,4 @@
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export HYPRSHOT_DIR=$HOME/Pictures/Screenshots
+export QT_QPA_PLATFORM=wayland
+export GDK_SCALE=2
