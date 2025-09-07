@@ -101,7 +101,14 @@
                 ],
                 "wipe": true
             }
-        ]
+        ],
+        "disk_encryption": {
+            "encryption_type": "luks",
+            "lvm_volumes": [],
+            "partitions": [
+                "76fcfde2-0ba9-4ae8-ad56-38d7a8d15d3d"
+            ]
+        }
     },
     "hostname": "archlinux",
     "kernels": [
