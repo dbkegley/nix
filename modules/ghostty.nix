@@ -21,10 +21,10 @@
           "alt+w=close_surface" # close the active tab or split
           "alt+v=new_split:right"
           "alt+shift+v=new_split:down"
-          "alt+j=previous_tab"
-          "alt+k=next_tab"
-          "alt+h=goto_split:previous"
-          "alt+l=goto_split:next"
+          "alt+h=previous_tab"
+          "alt+l=next_tab"
+          "alt+j=goto_split:previous"
+          "alt+k=goto_split:next"
           "alt+p=toggle_command_palette"
           "global:alt+space=toggle_quick_terminal"
         ];
