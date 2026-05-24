@@ -119,6 +119,7 @@
         };
         # unscale XWayland
         xwayland = { force_zero_scaling = true; };
+        misc = { focus_on_activate = false; };
       };
     };
   };
