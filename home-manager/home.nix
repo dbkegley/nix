@@ -42,6 +42,7 @@ in {
     ../modules/ssh.nix
     ../modules/starship.nix
     ../modules/zsh.nix
+    ../modules/zed.nix
   ];
 
   config = {
@@ -58,7 +59,7 @@ in {
     home = {
       username = cfg.username;
       homeDirectory = "/home/${cfg.username}";
-      sessionPath = [ "$HOME/.nix-profile/bin" ];
+      sessionPath = [ "$HOME/.nix-profile/bin" "$HOME/.local/bin" ];
     };
 
     programs.home-manager.enable = true;

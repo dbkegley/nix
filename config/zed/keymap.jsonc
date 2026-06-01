@@ -1,0 +1,232 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Terminal",
+    "bindings": {
+      "escape escape": "terminal_panel::Toggle",
+      "alt-h": "workspace::ActivatePaneLeft",
+      "alt-j": "workspace::ActivatePaneDown",
+      "alt-k": "workspace::ActivatePaneUp",
+      "alt-l": "workspace::ActivatePaneRight",
+    },
+  },
+  {
+    // "context": "Picker || Menu",
+    "bindings": {
+      "alt-j": "menu::SelectNext",
+      "alt-k": "menu::SelectPrevious",
+    },
+  },
+  {
+    "context": "Workspace && !Editor && !Terminal",
+    "bindings": {
+      "space": null,
+      "space b": "tab_switcher::ToggleAll",
+      "space f": "file_finder::Toggle",
+      "space t": "terminal_panel::ToggleFocus",
+      "space /": "pane::DeploySearch",
+      "alt-h": "workspace::ActivatePaneLeft",
+      "alt-j": "workspace::ActivatePaneDown",
+      "alt-k": "workspace::ActivatePaneUp",
+      "alt-l": "workspace::ActivatePaneRight",
+    },
+  },
+  {
+    "context": "GitPanel && ChangesList",
+    "bindings": {
+      "a": "git::ToggleStaged",
+      "R": "git::RestoreFile",
+      "ctrl-enter": "git::GenerateCommitMessage",
+    },
+  },
+  {
+    "context": "CommitEditor > Editor && vim_mode == helix_normal",
+    "bindings": {
+      "escape": "git_panel::FocusChanges",
+    },
+  },
+  {
+    "context": "Editor && vim_mode == helix_select",
+    "bindings": {
+      "n": "vim::SelectNextMatch",
+      "shift-n": "vim::SelectPreviousMatch",
+    },
+  },
+  {
+    "context": "Editor && (vim_mode == helix_normal || vim_mode == helix_select)",
+    "bindings": {
+      "space": null,
+      "space b": "tab_switcher::ToggleAll",
+      "space d": "diagnostics::Deploy",
+      "space f": "file_finder::Toggle",
+      "space F": "vim::ToggleProjectPanelFocus",
+      "space t": "terminal_panel::ToggleFocus",
+      "]": null,
+      "] g": "editor::GoToHunk",
+      "[ g": "editor::GoToPreviousHunk",
+      "] d": "editor::GoToDiagnostic",
+      "[ d": "editor::GoToPreviousDiagnostic",
+      "G": null,
+      "G d": "editor::ToggleSelectedDiffHunks",
+      "G D": "git::Diff",
+      "G s": "git::ToggleStaged",
+      "G r": "git::Restore",
+      "g i": "editor::GoToImplementation",
+    },
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-w": null,
+      "ctrl-shift-m": "workspace::ToggleZoom",
+      "ctrl-shift-h": "workspace::ToggleLeftDock",
+      "ctrl-shift-l": "workspace::ToggleRightDock",
+      "ctrl-shift-F": "vim::ToggleProjectPanelFocus",
+      "alt-w": "workspace::CloseActiveDock",
+      "alt-t": "terminal_panel::ToggleFocus",
+    },
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "ctrl-w": null,
+      "alt-l": "pane::ActivateNextItem",
+      "alt-h": "pane::ActivatePreviousItem",
+      "alt-w": "pane::CloseActiveItem",
+      "alt-shift-h": "pane::SwapItemLeft",
+      "alt-shift-l": "pane::SwapItemRight",
+    },
+  },
+  {
+    "context": "RulesLibrary",
+    "bindings": {
+      "alt-w": "workspace::CloseWindow",
+    },
+  },
+  {
+    "context": "SettingsWindow",
+    "bindings": {
+      "alt-w": "workspace::CloseWindow",
+    },
+  },
+  {
+    "context": "(Editor && (showing_code_actions || showing_completions))",
+    "bindings": {
+      "alt-j": "editor::ContextMenuNext",
+      "alt-k": "editor::ContextMenuPrevious",
+    },
+  },
+  {
+    "context": "Editor && mode == full && edit_prediction",
+    "bindings": {
+      "ctrl-l": "editor::NextEditPrediction",
+    },
+  },
+  {
+    "context": "Editor && !edit_prediction",
+    "bindings": {
+      "ctrl-l": "editor::ShowEditPrediction",
+    },
+  },
+  {
+    "context": "Editor && edit_prediction",
+    "bindings": {
+      "ctrl-l": "editor::AcceptEditPrediction",
+    },
+  },
+  {
+    "context": "Editor && (edit_prediction && (showing_completions || in_leading_whitespace))",
+    "bindings": {
+      "ctrl-l": "editor::AcceptEditPrediction",
+    },
+  },
+  {
+    "context": "EditPredictionContext > Editor",
+    "bindings": {
+      "alt-right": null,
+      "alt-left": null,
+    },
+  },
+  {
+    "context": "(Editor && (edit_prediction && (showing_completions || in_leading_whitespace)))",
+    "bindings": {
+      "alt-l": null,
+      "alt-right": null,
+      "alt-down": null,
+    },
+  },
+  {
+    "context": "(Editor && edit_prediction)",
+    "bindings": {
+      "alt-l": null,
+      "alt-right": null,
+      "alt-down": null,
+    },
+  },
+  {
+    "bindings": {
+      "shift-escape": null,
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-;": null,
+    },
+  },
+  {
+    "context": "Workspace > Editor",
+    "bindings": {
+      "alt-t": "workspace::NewFile",
+    },
+  },
+  {
+    "context": "CommitEditor > Editor",
+    "bindings": {
+      "ctrl-shift-l": "workspace::ToggleRightDock",
+    },
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-shift-l": "editor::SelectAllMatches",
+    },
+  },
+  {
+    "context": "Terminal",
+    "unbind": {
+      "ctrl-shift-l": "terminal::Clear",
+    },
+  },
+  {
+    "unbind": {
+      "shift-escape": "workspace::ToggleZoom",
+    },
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "ctrl-shift-m": "diagnostics::Deploy",
+      "ctrl-shift-f": "pane::DeploySearch",
+      "ctrl-shift-h": "search::ToggleReplace",
+    },
+  },
+  {
+    "context": "ProjectSearchBar",
+    "unbind": {
+      "ctrl-shift-h": "search::ToggleReplace",
+    },
+  },
+  {
+    "context": "Editor && edit_prediction",
+    "unbind": {
+      "alt-tab": "editor::AcceptEditPrediction",
+    },
+  },
+]

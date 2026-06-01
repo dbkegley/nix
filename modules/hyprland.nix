@@ -26,14 +26,14 @@
 
         windowrule = [
           # everything on workspace 3 by default
-          "workspace 3, class:^(.*)$"
+          "workspace 3, match:class ^(.*)$"
 
           # 1password and spotify are hidden on special workspaces
-          "workspace special:1password, class:^(.*1Password.*)$"
-          "workspace special:spotify, class:^(.*spotify.*)$"
+          "workspace special:1password, match:class ^(.*1Password.*)$"
+          "workspace special:spotify, match:class ^(.*spotify.*)$"
 
-          "workspace 1, class:^(.*ghostty.*)$"
-          "workspace 2, class:^(.*firefox.*)$"
+          "workspace 1, match:class ^(.*ghostty.*)$"
+          "workspace 2, match:class ^(.*firefox.*)$"
         ];
 
         exec-once = [
