@@ -4,7 +4,6 @@
     home.file = {
       ".config/easyeffects/output/lappy_mctopface.json".source =
         ../config/easyeffects/output/lappy_mctopface.json;
-      ".config/spotify-launcher.confg".source = ../config/spotify-launcher.conf;
     };
   };
 }

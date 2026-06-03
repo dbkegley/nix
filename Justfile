@@ -56,9 +56,6 @@ _install_system_packages:
     # discord
     firefox
     ghostty
-    # obs-studio
-    obsidian
-    spotify-launcher
   )
 
   hyprland=(
