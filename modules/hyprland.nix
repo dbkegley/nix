@@ -26,14 +26,14 @@
 
         windowrule = [
           # everything on workspace 3 by default
-          "workspace 3, match:class ^(.*)$"
+          "workspace 4, match:class ^(.*)$"
 
-          # 1password and spotify are hidden on special workspaces
-          "workspace special:1password, match:class ^(.*1Password.*)$"
-          "workspace special:spotify, match:class ^(.*spotify.*)$"
+          # 1password is hidden on special workspaces
+          # "workspace special:1password, match:class ^(.*1Password.*)$"
 
-          "workspace 1, match:class ^(.*ghostty.*)$"
-          "workspace 2, match:class ^(.*firefox.*)$"
+          "workspace 1, match:class ^(.*firefox.*)$"
+          "workspace 2, match:class ^(.*zed.*)$"
+          "workspace 3, match:class ^(.*ghostty.*)$"
         ];
 
         exec-once = [
@@ -75,10 +75,10 @@
 
           # apps
           "$mod, B, exec, $focus-or-start firefox firefox"
-          "$mod, M, exec, $focus-or-start spotify-launcher spotify"
           "$mod, P, exec, $focus-or-start '1password $electron_flags' 1Password"
           "$mod, D, exec, $focus-or-start 'discord $electron_flags' discord"
           "$mod, O, exec, $focus-or-start 'obsidian $electron_flags' obsidian"
+          "$mod, Z, exec, $focus-or-start zed zed"
 
           # cycle active window focus
           "$mod, J, cyclenext"

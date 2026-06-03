@@ -86,6 +86,7 @@
       "ctrl-w": null,
       "ctrl-shift-m": "workspace::ToggleZoom",
       "ctrl-shift-h": "workspace::ToggleLeftDock",
+      "ctrl-shift-j": "workspace::ToggleBottomDock",
       "ctrl-shift-l": "workspace::ToggleRightDock",
       "ctrl-shift-F": "vim::ToggleProjectPanelFocus",
       "alt-w": "workspace::CloseActiveDock",
@@ -196,6 +197,7 @@
     "context": "Editor",
     "unbind": {
       "ctrl-shift-l": "editor::SelectAllMatches",
+      "ctrl-shift-j": "editor::JoinLines",
     },
   },
   {
@@ -215,6 +217,7 @@
       "ctrl-shift-m": "diagnostics::Deploy",
       "ctrl-shift-f": "pane::DeploySearch",
       "ctrl-shift-h": "search::ToggleReplace",
+      "ctrl-j": "workspace::ToggleBottomDock",
     },
   },
   {
