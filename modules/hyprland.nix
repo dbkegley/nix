@@ -61,7 +61,7 @@
           "$mod, Q, exec, systemctl suspend"
           "$mod, W, exec, $HOME/.config/hypr/scripts/hide-or-kill.sh"
           "$mod SHIFT, F, fullscreen"
-          "$mod, N, exec, $terminal"
+          "$mod, ENTER, exec, $terminal"
 
           # allow ghostty's quickterminal on any workspace
           "ALT, SPACE, pass, class:^(.*ghostty.*)$"
@@ -76,8 +76,6 @@
           # apps
           "$mod, B, exec, $focus-or-start firefox firefox"
           "$mod, P, exec, $focus-or-start '1password $electron_flags' 1Password"
-          "$mod, D, exec, $focus-or-start 'discord $electron_flags' discord"
-          "$mod, O, exec, $focus-or-start 'obsidian $electron_flags' obsidian"
           "$mod, Z, exec, $focus-or-start zed zed"
 
           # cycle active window focus

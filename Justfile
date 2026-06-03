@@ -53,7 +53,6 @@ _install_system_packages:
   )
 
   applications=(
-    # discord
     firefox
     ghostty
   )
