@@ -19,7 +19,7 @@
       ".local/state/DankMaterialShell/default-session.json".source =
         ../config/DankMaterialShell/default-session.json;
 
-      ".config/DankMaterialShell/default-seetings.json".source =
+      ".config/DankMaterialShell/default-settings.json".source =
         ../config/DankMaterialShell/default-settings.json;
 
       ".config/quickshell/dms".source = builtins.fetchGit {

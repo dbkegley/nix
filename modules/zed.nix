@@ -8,6 +8,8 @@ in {
     };
     programs.zed-editor = {
       enable = true;
+      # use system zed
+      package = null;
     };
   };
 }

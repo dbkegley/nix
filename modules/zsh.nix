@@ -4,7 +4,6 @@
     autosuggestion.enable = true;
     enableCompletion = true;
     sessionVariables = { EDITOR = "hx"; };
-    # sessionPath = [ "$HOME/.local/bin" ];
     shellAliases = {
       hm-update = "home-manager switch --flake $HOME/nix/#desktop";
       k = "kubectl";
