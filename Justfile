@@ -21,8 +21,8 @@ bootstrap: _install_yay
 # full hyprland desktop and system dependency installation
 desktop:
   just _setup_sddm
-  just _install_1password
   just _install_system_packages
+  just _setup_1password
 
 
 _install_yay:
@@ -32,9 +32,8 @@ _install_yay:
   if command -v yay >/dev/null 2>&1; then
     echo "yay is already installed."
   else
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    cd /tmp/yay && makepkg --noconfirm -si && cd -
-    rm -r /tmp/yay
+    git clone https://aur.archlinux.org/yay.git $HOME/.local/share/yay
+    cd $HOME/.local/share/yay && makepkg --noconfirm -si && cd -
   fi
 
 
@@ -99,44 +98,21 @@ _install_system_packages:
     yay --noconfirm --needed -S
       quickshell
       1password
+      1password-cli
   )
 
   sudo ${pacman_pkgs_cmd[*]}
   ${yay_pkgs_cmd[*]}
 
 
-_install_1password: _setup_keyring
+_setup_1password: _setup_keyring
   #!/usr/bin/env bash
   set -euo pipefail
 
-  if command -v 1password >/dev/null 2>&1; then
-    echo "1password is already installed."
-  else
-    echo "Installing 1password..."
-    curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --import
-    git clone https://aur.archlinux.org/1password.git /tmp/1password
-    cd /tmp/1password && makepkg --noconfirm -si && cd -
-    rm -r /tmp/1password
-  fi
-
-  # TODO: I have not been able to get this working... putting it down for now.
-  # https://developer.1password.com/docs/cli/get-started
-  # install the 1password-cli if it isn't already installed
-  # and create the required group
-  # if command -v op >/dev/null 2>&1; then
-  #   echo "1password-cli is already installed."
-  # else
-  #   echo "Installing 1password-cli..."
-  #   gpg --keyserver keyserver.ubuntu.com --receive-keys 3FEF9748469ADBE15DA7CA80AC2D62742012EA22
-  #   curl -SsL "https://cache.agilebits.com/dist/1P/op2/pkg/v2.32.0/op_linux_amd64_v2.32.0.zip" -o /tmp/op.zip && \
-  #     unzip -d /tmp/op /tmp/op.zip && \
-  #     mv /tmp/op/op /usr/local/bin/ && \
-  #     gpg --verify /tmp/op/op.sig /tmp/op/op && \
-  #     rm -r /tmp/op.zip /tmp/op && \
-  #     groupadd -f onepassword-cli && \
-  #     chgrp onepassword-cli /usr/local/bin/op && \
-  #     chmod g+s /usr/local/bin/op
-  # fi
+  # TODO: unclear if yay -S 1password-cli sets up the requires group
+  # groupadd -f onepassword-cli && \
+  # chgrp onepassword-cli /usr/local/bin/op && \
+  # chmod g+s /usr/local/bin/op
 
   if command -v op-ssh-sign >/dev/null 2>&1; then
     echo "1password op-ssh-sign is already installed."
