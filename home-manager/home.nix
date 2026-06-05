@@ -75,6 +75,7 @@ in {
       golangci-lint
       rustup
       uv
+      claude-code
     ];
 
     # reload system units when changing configs

@@ -41,17 +41,7 @@
     "mode": "subtle",
   },
   "show_edit_predictions": true,
-  "agent_servers": {
-    "github-copilot-cli": {
-      "default_config_options": {
-        "model": "gpt-5.3-codex",
-      },
-      "type": "registry",
-    },
-    "claude-acp": {
-      "type": "registry",
-    },
-  },
+  "agent_servers": {},
   "inlay_hints": {
     "show_background": false,
     "edit_debounce_ms": 250,

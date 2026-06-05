@@ -84,6 +84,7 @@
     "context": "Workspace",
     "bindings": {
       "ctrl-w": null,
+      "ctrl-alt-shift-h": "multi_workspace::ToggleWorkspaceSidebar",
       "ctrl-shift-m": "workspace::ToggleZoom",
       "ctrl-shift-h": "workspace::ToggleLeftDock",
       "ctrl-shift-j": "workspace::ToggleBottomDock",
@@ -217,6 +218,7 @@
       "ctrl-shift-m": "diagnostics::Deploy",
       "ctrl-shift-f": "pane::DeploySearch",
       "ctrl-shift-h": "search::ToggleReplace",
+      "ctrl-alt-j": "multi_workspace::ToggleWorkspaceSidebar",
       "ctrl-j": "workspace::ToggleBottomDock",
     },
   },
