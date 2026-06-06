@@ -111,7 +111,7 @@ hl.window_rule({
 hl.bind(mod .. " + Q", hl.dsp.exec_cmd("systemctl suspend"))
 hl.bind(mod .. " + W", hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen())
-hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
+hl.bind(mod .. " + Return", hl.dsp.exec_cmd(focus_or_start .. " ghostty com.mitchellh.ghostty"))
 
 -- Ghostty quick terminal binding
 -- Pass ALT+SPACE to Ghostty windows to toggle the quick terminal from any workspace
@@ -128,7 +128,7 @@ hl.bind(mod .. " + F", hl.dsp.exec_cmd(terminal .. " -e yazi"))
 -- Applications
 hl.bind(mod .. " + B", hl.dsp.exec_cmd(focus_or_start .. " firefox firefox"))
 hl.bind(mod .. " + P", hl.dsp.exec_cmd(focus_or_start .. " '1password " .. electron_flags .. "' 1Password"))
-hl.bind(mod .. " + Z", hl.dsp.exec_cmd(focus_or_start .. " zed zed"))
+hl.bind(mod .. " + Z", hl.dsp.exec_cmd(focus_or_start .. " zed dev.zed.Zed"))
 
 -- Workspace navigation
 hl.bind(mod .. " + H", hl.dsp.focus({ workspace = "r-1" }))
