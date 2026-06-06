@@ -1,3 +1,7 @@
+-- configuration references:
+--   https://github.com/hyprwm/Hyprland/blob/main/example/hyprland.lua
+--   https://github.com/hyprwm/hyprland-wiki
+--
 -- Hyprland configuration in Lua
 -- This file is sourced by Hyprland directly
 
@@ -59,6 +63,11 @@ hl.config({
     },
     misc = {
         focus_on_activate = false,
+    },
+    general = {
+        border_size = 1,
+        gaps_in = 2,
+        gaps_out = 3,
     }
 })
 
