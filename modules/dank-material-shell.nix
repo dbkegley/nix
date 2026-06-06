@@ -15,17 +15,19 @@
       kdePackages.qt6ct
     ];
 
-    home.file = {
-      ".local/state/DankMaterialShell/default-session.json".source =
-        ../config/DankMaterialShell/default-session.json;
-
-      ".config/DankMaterialShell/default-settings.json".source =
+    xdg.configFile = {
+      "DankMaterialShell/default-settings.json".source =
         ../config/DankMaterialShell/default-settings.json;
 
-      ".config/quickshell/dms".source = builtins.fetchGit {
+      "quickshell/dms".source = builtins.fetchGit {
         url = "https://github.com/AvengeMedia/DankMaterialShell.git";
         rev = "d4816bd174901cb5582151dac6ead636cf96090d";
       };
+    };
+
+    home.file = {
+      ".local/state/DankMaterialShell/default-session.json".source =
+        ../config/DankMaterialShell/default-session.json;
 
       "Pictures/wallpapers" = {
         source = ../wallpapers;

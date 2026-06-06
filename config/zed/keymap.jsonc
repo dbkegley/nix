@@ -9,7 +9,6 @@
   {
     "context": "Terminal",
     "bindings": {
-      "escape escape": "terminal_panel::Toggle",
       "alt-h": "workspace::ActivatePaneLeft",
       "alt-j": "workspace::ActivatePaneDown",
       "alt-k": "workspace::ActivatePaneUp",
