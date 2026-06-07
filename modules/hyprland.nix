@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  ...
+}:
+{
   config = lib.mkIf config.kegs.isDesktop {
     # Manage Hyprland and UWSM config files directly
     xdg.configFile = {

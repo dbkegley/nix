@@ -1,4 +1,10 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   config = lib.mkIf config.kegs.isDesktop {
 
     fonts.fontconfig.enable = true;

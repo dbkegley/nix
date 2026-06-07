@@ -101,6 +101,14 @@
         "!pyright",
         "!pylsp",
       ],
+      "Nix": {
+        "formatter": {
+          "external": {
+            "command": "nixfmt",
+            "arguments": ["--quiet", "--"],
+          },
+        },
+      },
     },
   },
 }

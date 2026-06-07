@@ -1,6 +1,13 @@
-{ lib, config, pkgs, ... }:
-let cfg = config.kegs;
-in {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kegs;
+in
+{
 
   config = {
     home.file = lib.mkIf cfg.isDesktop {
@@ -11,10 +18,7 @@ in {
     programs.helix = {
       enable = true;
       settings = {
-        theme = if cfg.isDesktop then
-          "catppuccin_transparent"
-        else
-          "catppuccin_frappe";
+        theme = if cfg.isDesktop then "catppuccin_transparent" else "catppuccin_frappe";
         editor = {
           completion-timeout = 100;
           completion-replace = true;
@@ -29,9 +33,13 @@ in {
           #   cursor-line = "warning" # show warnings and errors on the cursorline inline
           # }
 
-          lsp = { display-inlay-hints = true; };
+          lsp = {
+            display-inlay-hints = true;
+          };
 
-          auto-save = { after-delay.enable = true; };
+          auto-save = {
+            after-delay.enable = true;
+          };
 
           indent-guides = {
             render = true;
@@ -45,15 +53,19 @@ in {
             mode.select = "SELECT";
           };
 
-          soft-wrap = { enable = true; };
+          soft-wrap = {
+            enable = true;
+          };
         };
 
         keys.normal = {
-          G.b =
-            ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"; # git blame
+          G.b = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"; # git blame
           space.w = ":w";
           space.q = ":q";
-          esc = [ "collapse_selection" "keep_primary_selection" ];
+          esc = [
+            "collapse_selection"
+            "keep_primary_selection"
+          ];
         };
       };
 
@@ -63,7 +75,10 @@ in {
             name = "go";
             auto-format = true;
             formatter.command = "goimports";
-            language-servers = [ "gopls" "golangci-lint-lsp" ];
+            language-servers = [
+              "gopls"
+              "golangci-lint-lsp"
+            ];
           }
           {
             # uv tool install pyright
@@ -72,7 +87,10 @@ in {
             # https://docs.astral.sh/ruff/editors/setup/#helix
             name = "python";
             auto-format = true;
-            language-servers = [ "pyright" "ruff" ];
+            language-servers = [
+              "pyright"
+              "ruff"
+            ];
           }
           {
             name = "nix";
@@ -98,12 +116,15 @@ in {
           "--issues-exit-code=1"
         ];
 
-        language-server.pyright.config.python.analysis.typeCheckingMode =
-          "basic";
+        language-server.pyright.config.python.analysis.typeCheckingMode = "basic";
       };
 
-      ignores =
-        [ "!.github/" ".github/styles" "!.gitignore" "!.gitattributes" ];
+      ignores = [
+        "!.github/"
+        ".github/styles"
+        "!.gitignore"
+        "!.gitattributes"
+      ];
     };
   };
 }

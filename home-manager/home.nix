@@ -1,6 +1,14 @@
-{ inputs, outputs, lib, config, pkgs, ... }:
-let cfg = config.kegs;
-in {
+{
+  outputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kegs;
+in
+{
   options.kegs = {
     isDesktop = lib.mkOption {
       type = lib.types.bool;
@@ -53,29 +61,36 @@ in {
         outputs.overlays.additions
         outputs.overlays.modifications
       ];
-      config = { allowUnfree = true; };
+      config = {
+        allowUnfree = true;
+      };
     };
 
     home = {
       username = cfg.username;
       homeDirectory = "/home/${cfg.username}";
-      sessionPath = [ "$HOME/.nix-profile/bin" "$HOME/.local/bin" ];
+      sessionPath = [
+        "$HOME/.nix-profile/bin"
+        "$HOME/.local/bin"
+      ];
     };
 
     programs.home-manager.enable = true;
 
     home.packages = with pkgs.unstable; [
-      btop
-      yazi
+      claude-code
       fzf
       jq
       just
-      kubectl
+      yazi
+      nil
+      nixd
+      nixfmt
       go_1_24
       golangci-lint
       rustup
       uv
-      claude-code
+      kubectl
     ];
 
     # reload system units when changing configs

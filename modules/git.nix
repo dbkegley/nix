@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-let cfg = config.kegs;
-in {
+{ config, ... }:
+let
+  cfg = config.kegs;
+in
+{
 
   programs.git = {
     enable = true;
@@ -13,8 +15,7 @@ in {
         format = "ssh";
         ssh.program = "op-ssh-sign";
       };
-      user.signingkey =
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICThloW6sHroEkrgK4oE6gHYmRWvpQ5AuLKBkHue1izb";
+      user.signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICThloW6sHroEkrgK4oE6gHYmRWvpQ5AuLKBkHue1izb";
     };
   };
 }

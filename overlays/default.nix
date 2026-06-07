@@ -1,4 +1,5 @@
-{ inputs, ... }: {
+{ inputs, ... }:
+{
   # https://nixos.wiki/wiki/Overlays
   unstable-packages = final: prev: {
     # expose nixpkgs-unstable under 'pkgs.unstable'
@@ -11,10 +12,9 @@
   # add custom packages from the 'pkgs' directory
   additions = final: prev: import ../pkgs inputs final.pkgs;
 
-  modifications = final: prev:
-    {
-      # example = prev.example.overrideAttrs (oldAttrs: rec {
-      # ...
-      # });
-    };
+  modifications = final: prev: {
+    # example = prev.example.overrideAttrs (oldAttrs: rec {
+    # ...
+    # });
+  };
 }

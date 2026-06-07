@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  ...
+}:
+{
   config = lib.mkIf config.kegs.isDesktop {
     programs.ghostty = {
       enable = true;
