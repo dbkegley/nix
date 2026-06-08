@@ -96,7 +96,7 @@ _install_system_packages:
 
   yay_pkgs_cmd=(
     yay --noconfirm --needed -S
-      quickshell
+      aur/quickshell-git
       1password
       1password-cli
   )

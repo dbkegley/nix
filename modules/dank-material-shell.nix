@@ -25,10 +25,10 @@
       "DankMaterialShell/default-settings.json".source =
         ../config/DankMaterialShell/default-settings.json;
 
-      "quickshell/dms".source = builtins.fetchGit {
+      "quickshell/dms".source = "${builtins.fetchGit {
         url = "https://github.com/AvengeMedia/DankMaterialShell.git";
-        rev = "d4816bd174901cb5582151dac6ead636cf96090d";
-      };
+        rev = "eb5afcdc40ea5446c27e18552ff4a19f9daf9484"; # 1.4.6
+      }}/quickshell";
     };
 
     home.file = {
