@@ -1,10 +1,6 @@
+{ ... }:
 {
-  lib,
-  config,
-  ...
-}:
-{
-  config = lib.mkIf config.kegs.isDesktop {
+  config = {
     # Manage Hyprland and UWSM config files directly
     xdg.configFile = {
       "hypr/hyprland.lua".source = ../config/hypr/hyprland.lua;

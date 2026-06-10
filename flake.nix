@@ -1,5 +1,5 @@
 {
-  description = "@dbkegley Arch + Nix home-manager configuration";
+  description = "@dbkegley Arch + Nix configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
@@ -11,7 +11,7 @@
     };
 
     system-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:numtide/system-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -34,6 +34,7 @@
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
+      system-manager,
       ...
     }@inputs:
     let
@@ -41,46 +42,41 @@
       system = "x86_64-linux";
     in
     {
-      formatter = nixpkgs.legacyPackages.${system}.alejandra;
+      formatter = nixpkgs.legacyPackages.${system}.nixfmt;
       overlays = import ./overlays { inherit inputs; };
-      homeConfigurations = {
-        minimal = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
+      # homeConfigurations = {
+      #   arch = home-manager.lib.homeManagerConfiguration {
+      #     pkgs = nixpkgs.legacyPackages.${system};
+      #     extraSpecialArgs = { inherit inputs outputs; };
+      #     modules = [
+      #       ./home-manager/home.nix
+      #     ];
+      #   };
+      # };
+
+      systemConfigs.arch = system-manager.lib.makeSystemConfig {
+        modules = [
+          home-manager.nixosModules.home-manager
+          (
+            { ... }:
             {
-              kegs = {
-                isDesktop = false;
-              };
+              nixpkgs.overlays = [
+                outputs.overlays.unstable-packages
+                outputs.overlays.additions
+                outputs.overlays.modifications
+              ];
             }
-            ./home-manager/home.nix
-          ];
-        };
-        work = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            {
-              kegs = {
-                isDesktop = false;
-                isWork = true;
-              };
-            }
-            ./home-manager/home.nix
-          ];
-        };
-        desktop = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            {
-              kegs = {
-                isDesktop = true;
-              };
-            }
-            ./home-manager/home.nix
-          ];
-        };
+          )
+          ./modules/options.nix
+          ./modules/system.nix
+          # todo:
+          # - kde.nix
+          # - niri.nix
+          # - shell.nix (noctalia)
+          # - zed.nix
+          ./modules/ghostty.nix
+          ./modules/dms.nix
+        ];
       };
     };
 }

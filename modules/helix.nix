@@ -1,16 +1,10 @@
 {
-  lib,
-  config,
   pkgs,
   ...
 }:
-let
-  cfg = config.kegs;
-in
 {
-
   config = {
-    home.file = lib.mkIf cfg.isDesktop {
+    home.file = {
       ".config/helix/themes/catppuccin_transparent.toml".source =
         ../config/helix/themes/catppuccin_transparent.toml;
     };
@@ -18,7 +12,7 @@ in
     programs.helix = {
       enable = true;
       settings = {
-        theme = if cfg.isDesktop then "catppuccin_transparent" else "catppuccin_frappe";
+        theme = "catppuccin_transparent";
         editor = {
           completion-timeout = 100;
           completion-replace = true;
