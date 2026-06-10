@@ -5,12 +5,12 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
+    system-manager = {
+      url = "github:numtide/system-manager/v1.1.0";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    system-manager = {
+    home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -41,43 +41,13 @@
       system = "x86_64-linux";
     in
     {
-      formatter = nixpkgs.legacyPackages.${system}.alejandra;
+      formatter = nixpkgs.legacyPackages.${system}.nixfmt;
       overlays = import ./overlays { inherit inputs; };
       homeConfigurations = {
-        minimal = home-manager.lib.homeManagerConfiguration {
+        arch = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.${system};
           extraSpecialArgs = { inherit inputs outputs; };
           modules = [
-            {
-              kegs = {
-                isDesktop = false;
-              };
-            }
-            ./home-manager/home.nix
-          ];
-        };
-        work = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            {
-              kegs = {
-                isDesktop = false;
-                isWork = true;
-              };
-            }
-            ./home-manager/home.nix
-          ];
-        };
-        desktop = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            {
-              kegs = {
-                isDesktop = true;
-              };
-            }
             ./home-manager/home.nix
           ];
         };

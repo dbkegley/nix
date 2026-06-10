@@ -5,15 +5,8 @@
   pkgs,
   ...
 }:
-let
-  cfg = config.kegs;
-in
 {
   options.kegs = {
-    isDesktop = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
     isWork = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -41,8 +34,8 @@ in
   };
 
   imports = [
-    ../modules/dank-material-shell.nix
-    ../modules/desktop.nix
+    ../modules/dms.nix
+    ../modules/easyeffects.nix
     ../modules/ghostty.nix
     ../modules/git.nix
     ../modules/helix.nix
@@ -67,8 +60,8 @@ in
     };
 
     home = {
-      username = cfg.username;
-      homeDirectory = "/home/${cfg.username}";
+      username = config.kegs.username;
+      homeDirectory = "/home/${config.kegs.username}";
       sessionPath = [
         "$HOME/.nix-profile/bin"
         "$HOME/.local/bin"

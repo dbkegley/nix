@@ -1,11 +1,9 @@
 {
-  lib,
-  config,
   pkgs,
   ...
 }:
 {
-  config = lib.mkIf config.kegs.isDesktop {
+  config = {
 
     fonts.fontconfig.enable = true;
 
@@ -25,10 +23,12 @@
       "DankMaterialShell/default-settings.json".source =
         ../config/DankMaterialShell/default-settings.json;
 
-      "quickshell/dms".source = "${builtins.fetchGit {
-        url = "https://github.com/AvengeMedia/DankMaterialShell.git";
-        rev = "eb5afcdc40ea5446c27e18552ff4a19f9daf9484"; # 1.4.6
-      }}/quickshell";
+      "quickshell/dms".source = "${
+        builtins.fetchGit {
+          url = "https://github.com/AvengeMedia/DankMaterialShell.git";
+          rev = "eb5afcdc40ea5446c27e18552ff4a19f9daf9484"; # 1.4.6
+        }
+      }/quickshell";
     };
 
     home.file = {

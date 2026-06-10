@@ -1,13 +1,10 @@
 { config, ... }:
-let
-  cfg = config.kegs;
-in
 {
 
   programs.git = {
     enable = true;
-    userName = cfg.name;
-    userEmail = if cfg.isWork then cfg.workEmail else cfg.email;
+    userName = config.kegs.name;
+    userEmail = if config.kegs.isWork then config.kegs.workEmail else config.kegs.email;
     extraConfig = {
       pull.rebase = true;
       commit.gpgsign = true;
