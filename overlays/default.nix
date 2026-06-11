@@ -4,7 +4,7 @@
   unstable-packages = final: prev: {
     # expose nixpkgs-unstable under 'pkgs.unstable'
     unstable = import inputs.nixpkgs-unstable {
-      system = final.system;
+      system = final.stdenv.hostPlatform.system;
       config.allowUnfree = true;
     };
   };

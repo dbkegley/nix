@@ -6,7 +6,7 @@
     settings = {
       user = {
         name = config.kegs.name;
-        email = if config.kegs.isWork then config.kegs.workEmail else config.kegs.email;
+        email = config.kegs.email;
         signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICThloW6sHroEkrgK4oE6gHYmRWvpQ5AuLKBkHue1izb";
       };
       pull.rebase = true;

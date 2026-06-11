@@ -6,44 +6,17 @@
   ...
 }:
 {
-  options.kegs = {
-    isWork = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
-    username = lib.mkOption {
-      type = lib.types.str;
-      default = "david";
-      description = "unix username";
-    };
-    name = lib.mkOption {
-      type = lib.types.str;
-      default = "David Kegley";
-      description = "full name";
-    };
-    email = lib.mkOption {
-      type = lib.types.str;
-      default = "david@kegley.me";
-      description = "personal email";
-    };
-    workEmail = lib.mkOption {
-      type = lib.types.str;
-      default = "david.kegley@posit.co";
-      description = "work email";
-    };
-  };
-
   imports = [
-    ../modules/dms.nix
-    ../modules/easyeffects.nix
-    ../modules/ghostty.nix
-    ../modules/git.nix
-    ../modules/helix.nix
-    ../modules/hyprland.nix
-    ../modules/ssh.nix
-    ../modules/starship.nix
-    ../modules/zsh.nix
-    ../modules/zed.nix
+    ../modules/user/dms.nix
+    ../modules/user/easyeffects.nix
+    ../modules/user/ghostty.nix
+    ../modules/user/git.nix
+    ../modules/user/helix.nix
+    ../modules/user/hyprland.nix
+    ../modules/user/ssh.nix
+    ../modules/user/starship.nix
+    ../modules/user/zsh.nix
+    ../modules/user/zed.nix
   ];
 
   config = {
@@ -72,6 +45,7 @@
 
     home.packages = with pkgs.unstable; [
       claude-code
+      gh
       fzf
       jq
       just

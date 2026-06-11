@@ -4,7 +4,7 @@
   config = {
     xdg.configFile = {
       "helix/themes/catppuccin_transparent.toml".source =
-        ../config/helix/themes/catppuccin_transparent.toml;
+        ../../config/helix/themes/catppuccin_transparent.toml;
     };
 
     programs.helix = {

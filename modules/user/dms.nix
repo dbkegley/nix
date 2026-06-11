@@ -21,7 +21,7 @@
 
     xdg.configFile = {
       "DankMaterialShell/default-settings.json".source =
-        ../config/DankMaterialShell/default-settings.json;
+        ../../config/DankMaterialShell/default-settings.json;
 
       "quickshell/dms".source = "${
         builtins.fetchGit {
@@ -33,10 +33,10 @@
 
     home.file = {
       ".local/state/DankMaterialShell/default-session.json".source =
-        ../config/DankMaterialShell/default-session.json;
+        ../../config/DankMaterialShell/default-session.json;
 
       "Pictures/wallpapers" = {
-        source = ../wallpapers;
+        source = ../../wallpapers;
         recursive = true;
       };
     };

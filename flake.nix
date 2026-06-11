@@ -41,7 +41,7 @@
       system = "x86_64-linux";
     in
     {
-      formatter = nixpkgs.legacyPackages.${system}.nixfmt;
+      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt;
       overlays = import ./overlays { inherit inputs; };
 
       systemConfigs.arch = system-manager.lib.makeSystemConfig {
@@ -50,6 +50,7 @@
             nixpkgs.hostPlatform = system;
             system-manager.allowAnyDistro = true;
           }
+          ./modules/kegs.nix
           ./system-manager/system.nix
         ];
       };
@@ -58,6 +59,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         extraSpecialArgs = { inherit inputs outputs; };
         modules = [
+          ./modules/kegs.nix
           ./home-manager/home.nix
         ];
       };

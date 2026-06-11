@@ -1,5 +1,9 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
+  imports = [
+    ../modules/system/users.nix
+  ];
+
   config = {
 
     nix.enable = true;
@@ -8,7 +12,7 @@
         "nix-command"
         "flakes"
       ];
-      trusted-users = [ "david" ];
+      trusted-users = [ config.kegs.username ];
       build-users-group = "nixbld";
     };
 

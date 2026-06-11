@@ -4,7 +4,7 @@
   config = {
     xdg.configFile = {
       "easyeffects/output/lappy_mctopface.json".source =
-        ../config/easyeffects/output/lappy_mctopface.json;
+        ../../config/easyeffects/output/lappy_mctopface.json;
     };
   };
 }
