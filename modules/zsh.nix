@@ -10,6 +10,7 @@
       EDITOR = "hx";
     };
     shellAliases = {
+      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
       hm-update = "home-manager switch --flake $HOME/nix/#arch";
       hm-rollback = "home-manager generations | head -2 | tail -1 | awk '{print $NF}' | xargs -I{} sh -c '{}/activate'";
       k = "kubectl";

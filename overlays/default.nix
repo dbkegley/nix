@@ -10,7 +10,7 @@
   };
 
   # add custom packages from the 'pkgs' directory
-  additions = final: prev: import ../pkgs inputs final.pkgs;
+  additions = final: prev: import ../pkgs inputs final;
 
   modifications = final: prev: {
     # example = prev.example.overrideAttrs (oldAttrs: rec {

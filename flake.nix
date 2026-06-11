@@ -2,16 +2,15 @@
   description = "@dbkegley Arch + Nix home-manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     system-manager = {
-      url = "github:numtide/system-manager/v1.1.0";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      url = "github:numtide/system-manager";
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -34,6 +33,7 @@
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
+      system-manager,
       ...
     }@inputs:
     let
@@ -43,14 +43,23 @@
     {
       formatter = nixpkgs.legacyPackages.${system}.nixfmt;
       overlays = import ./overlays { inherit inputs; };
-      homeConfigurations = {
-        arch = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            ./home-manager/home.nix
-          ];
-        };
+
+      systemConfigs.arch = system-manager.lib.makeSystemConfig {
+        modules = [
+          {
+            nixpkgs.hostPlatform = system;
+            system-manager.allowAnyDistro = true;
+          }
+          ./system-manager/system.nix
+        ];
+      };
+
+      homeConfigurations.arch = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${system};
+        extraSpecialArgs = { inherit inputs outputs; };
+        modules = [
+          ./home-manager/home.nix
+        ];
       };
     };
 }

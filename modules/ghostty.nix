@@ -6,6 +6,7 @@
       # use system ghostty
       # https://github.com/ghostty-org/ghostty/issues/2025
       package = null;
+      systemd.enable = false;
       enableZshIntegration = true;
       settings = {
         theme = "Catppuccin Frappe";

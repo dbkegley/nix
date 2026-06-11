@@ -4,10 +4,11 @@
   programs.ssh = {
     enable = true;
     package = null;
-    addKeysToAgent = "yes";
-    matchBlocks = {
+    enableDefaultConfig = false;
+    settings = {
       "*" = {
-        identityAgent = "~/.1password/agent.sock";
+        AddKeysToAgent = "yes";
+        IdentityAgent = "~/.1password/agent.sock";
       };
     };
   };

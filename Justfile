@@ -2,10 +2,10 @@ bootstrap: _install_yay
   #!/usr/bin/env bash
   set -euo pipefail
 
-  grep -qF "experimental-features" /etc/nix/nix.conf || \
-    (echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf)
-
-  nix run nixpkgs#home-manager -- switch --flake .#home
+  nix --extra-experimental-features 'nix-command flakes' \
+    run 'github:numtide/system-manager' -- \
+    switch --flake $HOME/nix#arch --sudo
+  nix run nixpkgs#home-manager -- switch --flake .#arch
 
   # add nix-managed zsh to /etc/shells
   zsh="$(which zsh)"
