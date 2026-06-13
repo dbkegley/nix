@@ -5,6 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    arch-package-manager.url = "path:./arch-package-manager";
+
     system-manager = {
       url = "github:numtide/system-manager";
     };
@@ -51,7 +53,8 @@
             system-manager.allowAnyDistro = true;
           }
           ./modules/kegs.nix
-          ./system-manager/system.nix
+          ./modules/system.nix
+          inputs.arch-package-manager.nixosModules.default
         ];
       };
 
@@ -60,7 +63,7 @@
         extraSpecialArgs = { inherit inputs outputs; };
         modules = [
           ./modules/kegs.nix
-          ./home-manager/home.nix
+          ./modules/home.nix
         ];
       };
     };

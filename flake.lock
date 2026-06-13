@@ -1,5 +1,16 @@
 {
   "nodes": {
+    "arch-package-manager": {
+      "locked": {
+        "path": "./arch-package-manager",
+        "type": "path"
+      },
+      "original": {
+        "path": "./arch-package-manager",
+        "type": "path"
+      },
+      "parent": []
+    },
     "dgop": {
       "inputs": {
         "nixpkgs": [
@@ -200,6 +211,7 @@
     },
     "root": {
       "inputs": {
+        "arch-package-manager": "arch-package-manager",
         "dgop": "dgop",
         "dms-cli": "dms-cli",
         "home-manager": "home-manager",

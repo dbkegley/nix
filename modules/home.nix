@@ -1,22 +1,21 @@
 {
   outputs,
-  lib,
   config,
   pkgs,
   ...
 }:
 {
   imports = [
-    ../modules/user/dms.nix
-    ../modules/user/easyeffects.nix
-    ../modules/user/ghostty.nix
-    ../modules/user/git.nix
-    ../modules/user/helix.nix
-    ../modules/user/hyprland.nix
-    ../modules/user/ssh.nix
-    ../modules/user/starship.nix
-    ../modules/user/zsh.nix
-    ../modules/user/zed.nix
+    ./user/dms.nix
+    ./user/easyeffects.nix
+    ./user/ghostty.nix
+    ./user/git.nix
+    ./user/helix.nix
+    ./user/hyprland.nix
+    ./user/ssh.nix
+    ./user/starship.nix
+    ./user/zsh.nix
+    ./user/zed.nix
   ];
 
   config = {
