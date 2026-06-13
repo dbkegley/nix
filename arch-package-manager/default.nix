@@ -206,8 +206,31 @@ let
               warn "Skipping AUR package $pkg (enableAUR is false)"
             else
               log "Installing $pkg via yay..."
-              # Run yay as nobody user for AUR builds
-              if sudo -u nobody yay -S --needed --noconfirm "$pkg" 2>&1 | tee /tmp/yay-$$.log | sed 's/^/  /'; then
+              # Fork and drop privileges to run yay as non-root
+              # Use the original user who invoked sudo (or fallback to first non-root user)
+              SUDO_USER="${"$"}{SUDO_USER:-$(getent passwd | awk -F: '$3 >= 1000 && $3 < 65000 {print $1; exit}')}"
+
+              if [ -z "$SUDO_USER" ]; then
+                error "Cannot determine non-root user for yay execution"
+              fi
+
+              # Fork a subshell that drops privileges permanently
+              (
+                # Drop all privileges - setuid/setgid to target user
+                # This cannot be undone within this subshell
+                exec su - "$SUDO_USER" -c "
+                  # Ensure we're not root
+                  if [ \$UID -eq 0 ]; then
+                    echo 'Failed to drop privileges'
+                    exit 1
+                  fi
+
+                  # Run yay as the non-root user
+                  yay -S --needed --noconfirm '$pkg' 2>&1 | sed 's/^/  /'
+                "
+              )
+
+              if [ $? -eq 0 ]; then
                 log "Successfully installed $pkg"
               else
                 INSTALL_FAILED="$INSTALL_FAILED $pkg"
@@ -268,6 +291,9 @@ in
 {
   options.arch.packageManager = {
     enable = lib.mkEnableOption "Arch Linux package management via pacman/yay";
+
+    # todo: Add a remove orphans option for cleaning up unused dependencies
+    # https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Removing_unused_packages_(orphans)
 
     enableAUR = lib.mkOption {
       type = lib.types.bool;
