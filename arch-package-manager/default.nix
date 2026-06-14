@@ -24,68 +24,74 @@ let
   # Lock file to prevent concurrent executions
   lockFile = "/var/lock/arch-package-manager.lock";
 
-  # TODO: Build each aur package in a separate derivation
-  # Currently any aur package change must re-build _all_ aur packages
+  # Build each AUR package as a separate derivation for better caching
+  buildAurPackage =
+    pkg:
+    pkgs.stdenv.mkDerivation {
+      name = "aur-${pkg.name}";
 
-  # Build all AUR packages in Nix derivation (unprivileged)
-  aurPackagesBuilt =
+      # Dependencies for building AUR packages
+      nativeBuildInputs = with pkgs; [
+        git
+        pacman
+        fakeroot
+        binutils
+        gcc
+        gnumake
+        pkg-config
+        curl
+        gzip
+      ];
+
+      # TODO: pre-fetch aur packages so we can disallow network?
+      # Make it an impure derivation to allow network access for git clone
+      __noChroot = true;
+
+      buildPhase = ''
+        # Clone AUR repository
+        echo "Cloning AUR package: ${pkg.name}"
+        if ! git clone --depth=1 https://aur.archlinux.org/${pkg.name}.git build; then
+          echo "Failed to clone ${pkg.name} from AUR"
+          exit 1
+        fi
+
+        cd build
+
+        # Build package with makepkg
+        # --nodeps: dependencies handled separately by pacman
+        echo "Building ${pkg.name} with makepkg..."
+        if ! makepkg --nodeps --noconfirm --noprogressbar; then
+          echo "Failed to build ${pkg.name}"
+          exit 1
+        fi
+
+        # Create output directory and copy built package
+        mkdir -p $out
+        cp *.pkg.tar.* $out/ || cp *.pkg.tar $out/ || {
+          echo "No package files found for ${pkg.name}"
+          exit 1
+        }
+
+        echo "Successfully built ${pkg.name}"
+      '';
+
+      installPhase = "true"; # buildPhase handles output
+    };
+
+  # Build all AUR packages as separate derivations
+  aurPackageDerivations =
     let
       # TODO: allow other source types, https://, git@?, etc.
       aurPkgs = lib.filter (p: p.source == "aur") cfg.packages;
     in
-    if cfg.enableAUR && (lib.length aurPkgs) > 0 then
-      pkgs.stdenv.mkDerivation {
-        name = "aur-packages-built";
+    if cfg.enableAUR && (lib.length aurPkgs) > 0 then map buildAurPackage aurPkgs else [ ];
 
-        # Dependencies for building AUR packages
-        nativeBuildInputs = with pkgs; [
-          git
-          pacman
-          fakeroot
-          binutils
-          gcc
-          gnumake
-          pkg-config
-          curl
-          gzip
-        ];
-
-        # TODO: pre-fetch aur packages so we can disallow network?
-
-        # Make it an impure derivation to allow network access for git clone
-        __noChroot = true;
-
-        buildPhase = ''
-          mkdir -p $out
-
-          # Build each AUR package in order (respects dependency ordering)
-          ${lib.concatMapStrings (pkg: ''
-            echo "Building AUR package: ${pkg.name}"
-
-            # Clone AUR repository
-            if ! git clone --depth=1 https://aur.archlinux.org/${pkg.name}.git ${pkg.name}; then
-              echo "Failed to clone ${pkg.name} from AUR"
-              exit 1
-            fi
-
-            cd ${pkg.name}
-
-            # Build package with makepkg
-            # --nodeps: dependencies handled separately by pacman
-            if ! makepkg --nodeps --noconfirm --noprogressbar; then
-              echo "Failed to build ${pkg.name}"
-              exit 1
-            fi
-
-            # Copy built package to output
-            cp *.pkg.tar.* $out/ || cp *.pkg.tar $out/ || true
-            cd ..
-          '') aurPkgs}
-
-          echo "Successfully built ${toString (lib.length aurPkgs)} AUR packages"
-        '';
-
-        installPhase = "true"; # buildPhase handles output
+  # Collect all built AUR packages into a single directory
+  aurPackagesBuilt =
+    if cfg.enableAUR && (lib.length aurPackageDerivations) > 0 then
+      pkgs.symlinkJoin {
+        name = "aur-packages-collection";
+        paths = aurPackageDerivations;
       }
     else
       # No AUR packages to build
@@ -311,10 +317,10 @@ in
   options.arch.packageManager = {
     enable = lib.mkEnableOption "Arch Linux package management via pacman/makepkg";
 
-    # todo: Add a remove orphans option for cleaning up unused dependencies
+    # TODO: Add a remove orphans option for cleaning up unused dependencies
     # https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Removing_unused_packages_(orphans)
-    #
-    # todo: Add an option that re-installs all packages tracked in the state file
+
+    # TODO: Add an option that re-installs all packages tracked in the state file
 
     enableAUR = lib.mkOption {
       type = lib.types.bool;
