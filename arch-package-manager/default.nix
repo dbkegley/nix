@@ -24,6 +24,73 @@ let
   # Lock file to prevent concurrent executions
   lockFile = "/var/lock/arch-package-manager.lock";
 
+  # TODO: Build each aur package in a separate derivation
+  # Currently any aur package change must re-build _all_ aur packages
+
+  # Build all AUR packages in Nix derivation (unprivileged)
+  aurPackagesBuilt =
+    let
+      # TODO: allow other source types, https://, git@?, etc.
+      aurPkgs = lib.filter (p: p.source == "aur") cfg.packages;
+    in
+    if cfg.enableAUR && (lib.length aurPkgs) > 0 then
+      pkgs.stdenv.mkDerivation {
+        name = "aur-packages-built";
+
+        # Dependencies for building AUR packages
+        nativeBuildInputs = with pkgs; [
+          git
+          pacman
+          fakeroot
+          binutils
+          gcc
+          gnumake
+          pkg-config
+          curl
+          gzip
+        ];
+
+        # TODO: pre-fetch aur packages so we can disallow network?
+
+        # Make it an impure derivation to allow network access for git clone
+        __noChroot = true;
+
+        buildPhase = ''
+          mkdir -p $out
+
+          # Build each AUR package in order (respects dependency ordering)
+          ${lib.concatMapStrings (pkg: ''
+            echo "Building AUR package: ${pkg.name}"
+
+            # Clone AUR repository
+            if ! git clone --depth=1 https://aur.archlinux.org/${pkg.name}.git ${pkg.name}; then
+              echo "Failed to clone ${pkg.name} from AUR"
+              exit 1
+            fi
+
+            cd ${pkg.name}
+
+            # Build package with makepkg
+            # --nodeps: dependencies handled separately by pacman
+            if ! makepkg --nodeps --noconfirm --noprogressbar; then
+              echo "Failed to build ${pkg.name}"
+              exit 1
+            fi
+
+            # Copy built package to output
+            cp *.pkg.tar.* $out/ || cp *.pkg.tar $out/ || true
+            cd ..
+          '') aurPkgs}
+
+          echo "Successfully built ${toString (lib.length aurPkgs)} AUR packages"
+        '';
+
+        installPhase = "true"; # buildPhase handles output
+      }
+    else
+      # No AUR packages to build
+      pkgs.runCommand "aur-packages-empty" { } "mkdir -p $out";
+
   # Pre-activation script that runs as assertion
   preActivationScript = pkgs.writeShellScript "arch-packages-pre-activation" ''
     set -euo pipefail
@@ -31,8 +98,8 @@ let
     # Check for dry-run mode (from config option)
     DRY_RUN="${if cfg.dryRun then "1" else "0"}"
 
-    # Ensure we're running as root (unless in dry-run)
-    if [ "$DRY_RUN" = "0" ] && [ "$EUID" -ne 0 ]; then
+    # Ensure we're running as root
+    if [ "$EUID" -ne 0 ]; then
       echo "ERROR: This script must be run as root"
       exit 1
     fi
@@ -60,12 +127,10 @@ let
       fi
     }
 
-    # Acquire lock to prevent concurrent runs (skip in dry-run)
-    if [ "$DRY_RUN" = "0" ]; then
-      exec 200>${lockFile}
-      if ! flock -n 200; then
-        error "Another instance is already running"
-      fi
+    # Acquire lock to prevent concurrent runs
+    exec 200>${lockFile};
+    if ! flock -n 200; then
+      error "Another instance is already running"
     fi
 
     if [ "$DRY_RUN" = "1" ]; then
@@ -89,13 +154,6 @@ let
       error "pacman not found"
     fi
 
-    # Check for yay if AUR is enabled
-    if [ "${if cfg.enableAUR then "true" else "false"}" = "true" ]; then
-      if ! command -v yay &> /dev/null; then
-        error "yay not found but enableAUR is true. Install yay first: https://github.com/Jguer/yay"
-      fi
-    fi
-
     # Ensure state directory exists
     STATE_DIR="$(dirname ${stateFile})"
     mkdir -p "$STATE_DIR"
@@ -112,13 +170,20 @@ let
     # Load new desired state
     NEW_STATE=$(cat ${packageManifest})
 
-    # Parse package lists
+    # Parse package lists - track ALL packages (including AUR) for removal support
     OLD_PACKAGES=$(echo "$OLD_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "present" or .state == null) | .name' | sort -u || true)
     NEW_PACKAGES=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "present" or .state == null) | .name' | sort -u || true)
     ABSENT_PACKAGES=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "absent") | .name' | sort -u || true)
 
-    # Calculate changes
-    TO_INSTALL=$(comm -13 <(echo "$OLD_PACKAGES") <(echo "$NEW_PACKAGES") || true)
+    # Separate lists by source type for targeted operations
+    OLD_PACMAN=$(echo "$OLD_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select((.state == "present" or .state == null) and (.source == "pacman" or .source == null)) | .name' | sort -u || true)
+    NEW_PACMAN=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select((.state == "present" or .state == null) and (.source == "pacman" or .source == null)) | .name' | sort -u || true)
+    OLD_AUR=$(echo "$OLD_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select((.state == "present" or .state == null) and .source == "aur") | .name' | sort -u || true)
+    NEW_AUR=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r '.packages[] | select((.state == "present" or .state == null) and .source == "aur") | .name' | sort -u || true)
+
+    # Calculate changes - only install NEW packages (not in old state)
+    TO_INSTALL_PACMAN=$(comm -13 <(echo "$OLD_PACMAN") <(echo "$NEW_PACMAN") || true)
+    TO_INSTALL_AUR=$(comm -13 <(echo "$OLD_AUR") <(echo "$NEW_AUR") || true)
     TO_REMOVE=$(comm -23 <(echo "$OLD_PACKAGES") <(echo "$NEW_PACKAGES") || true)
 
     # Add explicitly absent packages to removal list
@@ -127,7 +192,7 @@ let
     fi
 
     # Check if any changes are needed
-    if [ -z "$TO_INSTALL" ] && [ -z "$TO_REMOVE" ]; then
+    if [ -z "$TO_INSTALL_PACMAN" ] && [ -z "$TO_INSTALL_AUR" ] && [ -z "$TO_REMOVE" ]; then
       log "No package changes needed"
       if [ "$DRY_RUN" = "0" ]; then
         echo "$NEW_STATE" > "${stateFile}"
@@ -137,13 +202,18 @@ let
 
     # Report planned changes
     log "Package changes required:"
-    if [ -n "$TO_INSTALL" ]; then
-      log "Packages to install:"
-      echo "$TO_INSTALL" | while read -r pkg; do
-        if [ -n "$pkg" ]; then
-          SOURCE=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r ".packages[] | select(.name == \"$pkg\") | .source // \"pacman\"")
-          log "  + $pkg (via $SOURCE)"
-        fi
+    if [ -n "$TO_INSTALL_PACMAN" ]; then
+      log "Official packages to install:"
+      echo "$TO_INSTALL_PACMAN" | while read -r pkg; do
+        [ -n "$pkg" ] && log "  + $pkg (via pacman)"
+      done
+    fi
+
+    # Report AUR packages to install
+    if [ -n "$TO_INSTALL_AUR" ]; then
+      log "AUR packages to install (pre-built):"
+      echo "$TO_INSTALL_AUR" | while read -r pkg; do
+        [ -n "$pkg" ] && log "  + $pkg (via AUR)"
       done
     fi
 
@@ -161,89 +231,43 @@ let
       fi
     fi
 
-    # Update package database (skip in dry-run)
-    if [ "$DRY_RUN" = "0" ]; then
-      log "Updating package database..."
-      if ! pacman -Sy --noconfirm; then
-        warn "Failed to update package database, continuing anyway..."
+    # Install NEW AUR packages (pre-built in Nix store)
+    if [ -n "$TO_INSTALL_AUR" ]; then
+      AUR_BUILT_DIR="${aurPackagesBuilt}"
+      if [ -d "$AUR_BUILT_DIR" ] && [ "$(ls -A $AUR_BUILT_DIR 2>/dev/null)" ]; then
+        if [ "$DRY_RUN" = "0" ]; then
+          log "Installing NEW AUR packages from Nix store..."
+          # Note: We still use --needed as a safety measure
+          if ! pacman -U --needed --noconfirm "$AUR_BUILT_DIR"/*.pkg.tar.* 2>&1 | sed 's/^/  /'; then
+            error "Failed to install AUR packages"
+          fi
+          log "Successfully installed AUR packages: $TO_INSTALL_AUR"
+        else
+          log "Would install AUR packages: $TO_INSTALL_AUR (dry-run)"
+        fi
+      else
+        error "AUR packages to install but build directory is empty: $AUR_BUILT_DIR"
       fi
-    else
-      log "Would update package database (skipped in dry-run)"
     fi
 
-    # Install packages
-    INSTALL_FAILED=""
-    if [ -n "$TO_INSTALL" ]; then
+    # Install official packages
+    if [ -n "$TO_INSTALL_PACMAN" ]; then
       if [ "$DRY_RUN" = "0" ]; then
-        log "Installing packages..."
+        log "Installing official packages..."
+        echo "$TO_INSTALL_PACMAN" | while read -r pkg; do
+          [ -n "$pkg" ] || continue
+          log "Installing $pkg via pacman..."
+          if ! pacman -S --needed --noconfirm "$pkg" 2>&1 | tee /tmp/pacman-$$.log | sed 's/^/  /'; then
+            error "Failed to install $pkg via pacman"
+          fi
+          log "Successfully installed $pkg"
+        done
       else
-        log "Would install packages (dry-run):"
+        log "Would install official packages (dry-run):"
+        echo "$TO_INSTALL_PACMAN" | while read -r pkg; do
+          [ -n "$pkg" ] && log "  Would install: $pkg"
+        done
       fi
-
-      echo "$TO_INSTALL" | while read -r pkg; do
-        [ -n "$pkg" ] || continue
-
-        SOURCE=$(echo "$NEW_STATE" | ${pkgs.jq}/bin/jq -r ".packages[] | select(.name == \"$pkg\") | .source // \"pacman\"")
-
-        if [ "$DRY_RUN" = "1" ]; then
-          log "  Would install: $pkg (via $SOURCE)"
-          continue
-        fi
-
-        case "$SOURCE" in
-          pacman)
-            log "Installing $pkg via pacman..."
-            if pacman -S --needed --noconfirm "$pkg" 2>&1 | tee /tmp/pacman-$$.log | sed 's/^/  /'; then
-              log "Successfully installed $pkg"
-            else
-              INSTALL_FAILED="$INSTALL_FAILED $pkg"
-              error "Failed to install $pkg via pacman"
-            fi
-            ;;
-
-          yay)
-            if [ "${if cfg.enableAUR then "true" else "false"}" != "true" ]; then
-              warn "Skipping AUR package $pkg (enableAUR is false)"
-            else
-              log "Installing $pkg via yay..."
-              # Fork and drop privileges to run yay as non-root
-              # Use the original user who invoked sudo (or fallback to first non-root user)
-              SUDO_USER="${"$"}{SUDO_USER:-$(getent passwd | awk -F: '$3 >= 1000 && $3 < 65000 {print $1; exit}')}"
-
-              if [ -z "$SUDO_USER" ]; then
-                error "Cannot determine non-root user for yay execution"
-              fi
-
-              # Fork a subshell that drops privileges permanently
-              (
-                # Drop all privileges - setuid/setgid to target user
-                # This cannot be undone within this subshell
-                exec su - "$SUDO_USER" -c "
-                  # Ensure we're not root
-                  if [ \$UID -eq 0 ]; then
-                    echo 'Failed to drop privileges'
-                    exit 1
-                  fi
-
-                  # Run yay as the non-root user
-                  yay -S --needed --noconfirm '$pkg' 2>&1 | sed 's/^/  /'
-                "
-              )
-
-              if [ $? -eq 0 ]; then
-                log "Successfully installed $pkg"
-              else
-                INSTALL_FAILED="$INSTALL_FAILED $pkg"
-                error "Failed to install $pkg via yay"
-              fi
-            fi
-            ;;
-
-          *)
-            error "Unknown source '$SOURCE' for package $pkg"
-            ;;
-        esac
-      done
     fi
 
     # Remove packages
@@ -267,11 +291,6 @@ let
       fi
     fi
 
-    # Verify critical packages were installed (skip in dry-run)
-    if [ "$DRY_RUN" = "0" ] && [ -n "$INSTALL_FAILED" ]; then
-      error "Failed to install critical packages:$INSTALL_FAILED"
-    fi
-
     # Save new state (skip in dry-run)
     if [ "$DRY_RUN" = "0" ]; then
       echo "$NEW_STATE" > "${stateFile}"
@@ -290,10 +309,12 @@ let
 in
 {
   options.arch.packageManager = {
-    enable = lib.mkEnableOption "Arch Linux package management via pacman/yay";
+    enable = lib.mkEnableOption "Arch Linux package management via pacman/makepkg";
 
     # todo: Add a remove orphans option for cleaning up unused dependencies
     # https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Removing_unused_packages_(orphans)
+    #
+    # todo: Add an option that re-installs all packages tracked in the state file
 
     enableAUR = lib.mkOption {
       type = lib.types.bool;
@@ -331,10 +352,10 @@ in
             source = lib.mkOption {
               type = lib.types.enum [
                 "pacman"
-                "yay"
+                "aur"
               ];
               default = "pacman";
-              description = "Package source (pacman for official repos, yay for AUR)";
+              description = "Package source ('pacman' for official repos, or 'aur' for AUR)";
             };
 
             state = lib.mkOption {
@@ -354,7 +375,7 @@ in
         { name = "docker"; }
         {
           name = "visual-studio-code-bin";
-          source = "yay";
+          source = "aur";
         }
       ];
       description = "List of packages to manage";
@@ -385,7 +406,7 @@ in
     # Validation assertions
     assertions = [
       {
-        assertion = cfg.enableAUR || !(lib.any (p: p.source == "yay") cfg.packages);
+        assertion = cfg.enableAUR || !(lib.any (p: p.source == "aur") cfg.packages);
         message = "AUR packages specified but arch.packageManager.enableAUR is false";
       }
       {
@@ -401,70 +422,6 @@ in
           (lib.length names) == (lib.length uniqueNames);
         message = "Duplicate package declarations found in arch.packageManager.packages";
       }
-    ];
-
-    # Provide helper commands
-    environment.systemPackages = [
-      (pkgs.writeShellScriptBin "arch-packages-status" ''
-        echo "=== Arch Package Manager Status ==="
-        echo ""
-
-        if [ -f "${stateFile}" ]; then
-          echo "Currently managed packages:"
-          ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "present" or .state == null) | "  • \(.name) (\(.source // "pacman"))"' "${stateFile}" | sort
-
-          ABSENT=$(${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "absent") | .name' "${stateFile}" 2>/dev/null)
-          if [ -n "$ABSENT" ]; then
-            echo ""
-            echo "Explicitly removed packages:"
-            echo "$ABSENT" | sed 's/^/  • /'
-          fi
-        else
-          echo "No packages currently managed (no state file found)"
-        fi
-
-        echo ""
-        echo "Configuration:"
-        echo "  • AUR enabled: ${if cfg.enableAUR then "yes" else "no"}"
-        echo "  • Auto-removal: ${if cfg.enableRemoval then "yes" else "no"}"
-        echo "  • Continue on error: ${if cfg.continueOnError then "yes" else "no"}"
-
-        if [ -f /run/arch-package-manager-success ]; then
-          echo ""
-          echo "Last run: ✓ Success (this boot)"
-        fi
-      '')
-
-      (pkgs.writeShellScriptBin "arch-packages-check" ''
-        echo "=== Checking Arch Package Status ==="
-        echo ""
-
-        # Load desired state
-        DESIRED=$(cat ${packageManifest})
-
-        # Check each package
-        echo "$DESIRED" | ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "present" or .state == null) | .name' | while read -r pkg; do
-          if pacman -Q "$pkg" &>/dev/null; then
-            echo "  ✓ $pkg is installed"
-          else
-            echo "  ✗ $pkg is NOT installed"
-          fi
-        done
-
-        # Check absent packages
-        ABSENT=$(echo "$DESIRED" | ${pkgs.jq}/bin/jq -r '.packages[] | select(.state == "absent") | .name')
-        if [ -n "$ABSENT" ]; then
-          echo ""
-          echo "Packages that should be absent:"
-          echo "$ABSENT" | while read -r pkg; do
-            if pacman -Q "$pkg" &>/dev/null; then
-              echo "  ✗ $pkg is still installed"
-            else
-              echo "  ✓ $pkg is not installed"
-            fi
-          done
-        fi
-      '')
     ];
   };
 }
