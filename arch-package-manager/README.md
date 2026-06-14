@@ -87,11 +87,6 @@ If success → Apply config & start services
 - Default: false
 - Description: Automatically remove packages no longer in configuration
 
-### `arch.packageManager.continueOnError`
-- Type: boolean
-- Default: false
-- Description: Continue activation even if package installation fails
-
 ### `arch.packageManager.packages`
 - Type: list of package specifications
 - Default: []

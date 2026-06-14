@@ -16,18 +16,12 @@
   arch.packageManager = {
     enable = true;
 
-    # TODO: bootstrap yay with makepkg -si inside a nix build?
     # Enable AUR if you need packages from AUR
-    # Note: requires yay to be installed manually first
     enableAUR = false;
 
     # Enable automatic removal of packages not in the list
     # Be careful with this - it will remove packages!
     enableRemoval = false;
-
-    # Whether to continue activation if package install fails
-    # Default false = fail fast and abort activation
-    continueOnError = false;
 
     # Packages to manage
     packages = [

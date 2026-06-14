@@ -340,12 +340,6 @@ in
       description = "Run in dry-run mode - show what would be installed/removed without making changes";
     };
 
-    continueOnError = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Continue activation even if package installation fails (not recommended)";
-    };
-
     packages = lib.mkOption {
       type = lib.types.listOf (
         lib.types.submodule {
@@ -393,20 +387,9 @@ in
     system-manager.preActivationAssertions.archPackageManager = {
       enable = true;
       name = "arch-package-manager";
-      script =
-        if cfg.continueOnError then
-          ''
-            # Run package management but don't fail activation
-            ${preActivationScript} || {
-              echo "WARNING: Package management failed but continuing (continueOnError = true)"
-              exit 0
-            }
-          ''
-        else
-          ''
-            # Run package management and fail activation on error
-            ${preActivationScript}
-          '';
+      script = ''
+        ${preActivationScript}
+      '';
     };
 
     # Validation assertions
