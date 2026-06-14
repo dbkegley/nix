@@ -325,7 +325,7 @@ in
     enableAUR = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable AUR package installation via yay";
+      description = "Enable AUR package installation via AUR";
     };
 
     enableRemoval = lib.mkOption {
@@ -346,7 +346,7 @@ in
           options = {
             name = lib.mkOption {
               type = lib.types.str;
-              description = "Package name as known to pacman/yay";
+              description = "Package name as known to pacman/aur";
             };
 
             source = lib.mkOption {

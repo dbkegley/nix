@@ -2,7 +2,7 @@
   description = "Declarative Arch Linux package management for Nix/system-manager";
 
   outputs =
-    { self }:
+    { ... }:
     {
       # Main module export - receives pkgs from the importing system
       nixosModules.default = ./default.nix;

@@ -1,24 +1,35 @@
 # Arch Package Manager for Nix
 
-A standalone Nix flake that provides declarative package management for Arch Linux using native package managers (pacman/yay), designed to work with system-manager.
+A standalone Nix flake that provides declarative package management for Arch Linux using native package managers (pacman/makepkg), designed to work with system-manager.
 
 ## Overview
 
 This module allows you to:
 - Declare Arch packages in your Nix configuration
-- Install/remove packages via pacman/yay before system activation
+- Install/remove packages via makepkg/pacman before system activation
 - Fail fast if packages cannot be installed
 - Track managed packages for safe removal
 - Optionally manage AUR packages
 
 ## How It Works
 
-The module uses system-manager's pre-activation assertions to install packages **before** any system configuration changes are applied. If package installation fails, the entire activation is aborted, ensuring your system never ends up in an inconsistent state.
+The module uses a two-phase approach:
+1. **Build Phase**: AUR packages are built from source using `makepkg` in isolated Nix derivations
+2. **Install Phase**: Built packages and official packages are installed via `pacman` during system-manager's pre-activation
 
+### Build Phase (AUR only)
+- Each AUR package is built in its own Nix derivation for optimal caching
+- Uses `makepkg` to compile packages from PKGBUILD files
+- Builds are sandboxed and unprivileged (no root access)
+- Built `.pkg.tar.zst` files are stored in the Nix store
+
+### Install Phase
 ```
 system-manager switch
          ↓
-Install/remove Arch packages
+Pre-activation: Install/remove packages
+  • pacman -U for built AUR packages
+  • pacman -S for official packages
          ↓
 If failed → Abort (no changes)
          ↓  
@@ -80,7 +91,7 @@ If success → Apply config & start services
 ### `arch.packageManager.enableAUR`
 - Type: boolean  
 - Default: false
-- Description: Allow installation of AUR packages via yay
+- Description: Enable building and installation of AUR packages via makepkg
 
 ### `arch.packageManager.enableRemoval`
 - Type: boolean
@@ -93,8 +104,8 @@ If success → Apply config & start services
 - Description: List of packages to manage
 
 Each package specification has:
-- `name` (string, required): Package name as known to pacman/yay
-- `source` (enum ["pacman" "yay"], default: "pacman"): Package source
+- `name` (string, required): Package name as known to pacman/aur
+- `source` (enum ["pacman" "aur"], default: "pacman"): Package source
 - `state` (enum ["present" "absent"], default: "present"): Desired state
 
 ## Usage
@@ -120,20 +131,26 @@ arch.packageManager = {
   enableAUR = true;
   packages = [
     { name = "htop"; source = "pacman"; }
-    { name = "visual-studio-code-bin"; source = "yay"; }
+    { name = "visual-studio-code-bin"; source = "aur"; }
+    # If an AUR package depends on another AUR package, declare both:
+    { name = "electron25-bin"; source = "aur"; }  # dependency
+    { name = "some-electron-app"; source = "aur"; }  # dependent
   ];
 };
 ```
+
+**Note**: AUR packages are built from source during Nix evaluation using `makepkg`. Each package is built in its own derivation for better caching - unchanged packages won't rebuild.
 
 ### With Package Removal
 
 ```nix
 arch.packageManager = {
   enable = true;
-  enableRemoval = true;  # Removes packages not in list
+  # Removes packages that were present in the prior activation's packages list but were since removed
+  enableRemoval = true;  
   packages = [
     { name = "htop"; }
-    { name = "nano"; state = "absent"; }  # Explicitly remove
+    { name = "nano"; state = "absent"; }  # Explicitly remove, even if this package was not tracked
   ];
 };
 ```
@@ -152,23 +169,10 @@ arch.packageManager = {
 
 Then run system-manager normally:
 ```bash
-sudo system-manager switch
+system-manager switch --sudo
 ```
 
 This will show what would be installed/removed without making any changes.
-
-## Commands
-
-```bash
-# Check current package status
-arch-packages-status
-
-# Verify packages are installed
-arch-packages-check
-
-# View state file
-cat /var/lib/arch-package-manager/state.json | jq
-```
 
 ## State Management
 
@@ -198,8 +202,9 @@ This module is designed to work alongside system-manager:
 
 1. **No version pinning**: Uses latest available package versions
 2. **No reproducibility**: Package versions may differ between installations
-3. **Requires privileges**: Needs sudo access for pacman/yay
+3. **Requires privileges**: Needs sudo access for pacman
 4. **Arch Linux only**: Specifically designed for Arch-based distributions
+5. **AUR dependencies**: AUR packages that depend on other AUR packages must have all dependencies explicitly declared
 
 ## What Happens During Activation
 
