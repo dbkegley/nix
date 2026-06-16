@@ -1,11 +1,11 @@
 {
   outputs,
   config,
-  pkgs,
   ...
 }:
 {
   imports = [
+    ./user/packages.nix
     ./user/dms.nix
     ./user/easyeffects.nix
     ./user/ghostty.nix
@@ -25,6 +25,7 @@
         outputs.overlays.unstable-packages
         outputs.overlays.additions
         outputs.overlays.modifications
+        outputs.overlays.yay-fix
       ];
       config = {
         allowUnfree = true;
@@ -41,23 +42,6 @@
     };
 
     programs.home-manager.enable = true;
-
-    home.packages = with pkgs.unstable; [
-      claude-code
-      gh
-      fzf
-      jq
-      just
-      yazi
-      nil
-      nixd
-      nixfmt
-      go_1_24
-      golangci-lint
-      rustup
-      uv
-      kubectl
-    ];
 
     # reload system units when changing configs
     systemd.user.startServices = "sd-switch";

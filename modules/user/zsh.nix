@@ -10,9 +10,11 @@
       EDITOR = "hx";
     };
     shellAliases = {
-      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
       hm-update = "home-manager switch --flake $HOME/nix/#arch";
       hm-rollback = "home-manager generations | head -2 | tail -1 | awk '{print $NF}' | xargs -I{} sh -c '{}/activate'";
+      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
+      aps-update = "arch-package-sync --update --remove-orphans";
+      aps = "arch-package-sync";
       k = "kubectl";
       ll = "ls -al --color=auto";
     };

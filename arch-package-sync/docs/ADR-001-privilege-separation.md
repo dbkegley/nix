@@ -5,7 +5,7 @@ Proposed
 
 ## Context and Problem Statement
 
-The arch-package-manager module needs to install both official Arch packages (via pacman) and AUR packages (via makepkg). This creates a fundamental security conflict:
+The arch-package-sync module needs to install both official Arch packages (via pacman) and AUR packages (via makepkg). This creates a fundamental security conflict:
 
 - **pacman** must run as root to install packages system-wide
 - **makepkg** must NOT run as root and must NOT have access to sudo (security requirement for untrusted build scripts)
@@ -56,7 +56,7 @@ Completely separate the unprivileged build phase from the privileged install pha
 ### Phase 1: Build AUR packages in Nix derivation (unprivileged)
 
 ```nix
-# In arch-package-manager/default.nix
+# In arch-package-sync/default.nix
 let
   # Build all AUR packages as a Nix derivation
   aurPackagesBuilt = pkgs.stdenv.mkDerivation {
@@ -164,7 +164,7 @@ Users can define both system-manager and arch packages in the same module:
 {
   system-manager.lib.makeSystemConfig {
     modules = [
-      arch-package-manager.nixosModules.default  # The module
+      arch-package-sync.nixosModules.default  # The module
       ./modules/system/docker.nix                # User modules
       {
         arch.packageManager = {

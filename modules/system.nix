@@ -1,8 +1,7 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 {
   imports = [
     ./system/users.nix
-    ./system/packages.nix
   ];
 
   config = {
@@ -16,12 +15,5 @@
       trusted-users = [ config.kegs.username ];
       build-users-group = "nixbld";
     };
-
-    environment.systemPackages = with pkgs; [
-      vim
-      curl
-      wget
-      system-manager
-    ];
   };
 }

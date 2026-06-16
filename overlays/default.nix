@@ -12,6 +12,9 @@
   # add custom packages from the 'pkgs' directory
   additions = final: prev: import ../pkgs inputs final;
 
+  # Fix yay version reporting
+  yay-fix = import ./yay.nix;
+
   modifications = final: prev: {
     # example = prev.example.overrideAttrs (oldAttrs: rec {
     # ...

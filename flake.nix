@@ -5,7 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    arch-package-manager.url = "path:./arch-package-manager";
+    arch-package-sync.url = "path:./arch-package-sync";
 
     system-manager = {
       url = "github:numtide/system-manager";
@@ -54,7 +54,6 @@
           }
           ./modules/kegs.nix
           ./modules/system.nix
-          inputs.arch-package-manager.nixosModules.default
         ];
       };
 
@@ -64,6 +63,7 @@
         modules = [
           ./modules/kegs.nix
           ./modules/home.nix
+          inputs.arch-package-sync.nixosModules.default
         ];
       };
     };

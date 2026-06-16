@@ -30,7 +30,7 @@ hm-update  # Alias: home-manager switch --flake $HOME/nix/#arch
 │   ├── home.nix          # Home-manager configuration
 │   ├── system/           # System-specific modules
 │   └── user/             # User-specific modules
-├── arch-package-manager/  # Arch package management integration
+├── arch-package-sync/  # Arch package management integration
 ├── config/               # Configuration files
 └── Justfile             # Task runner (bootstrap, desktop setup)
 ```

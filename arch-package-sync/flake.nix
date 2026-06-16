@@ -40,14 +40,14 @@
             inputs = {
               nixpkgs.url = "github:nixos/nixpkgs";
               system-manager.url = "github:numtide/system-manager";
-              arch-package-manager.url = "github:yourusername/arch-package-manager";
+              arch-package-sync.url = "github:yourusername/arch-package-sync";
             };
 
-            outputs = { self, nixpkgs, system-manager, arch-package-manager, ... }:
+            outputs = { self, nixpkgs, system-manager, arch-package-sync, ... }:
             {
               systemConfigs.default = system-manager.lib.makeSystemConfig {
                 modules = [
-                  arch-package-manager.nixosModules.default
+                  arch-package-sync.nixosModules.default
                   {
                     arch.packageManager = {
                       enable = true;
