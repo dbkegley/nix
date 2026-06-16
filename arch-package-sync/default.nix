@@ -175,7 +175,21 @@ let
 
     # Add explicitly absent packages to removal list
     if [ -n "$ABSENT_PACKAGES" ]; then
-      TO_REMOVE=$(echo -e "$TO_REMOVE\n$ABSENT_PACKAGES" | sort -u)
+      TO_REMOVE=$(echo -e "$TO_REMOVE\n$ABSENT_PACKAGES" | grep -v '^$' | sort -u || true)
+    fi
+
+    # Filter removals based on --no-remove flag (but always remove absent packages)
+    if [ "$NO_REMOVE" = "1" ] && [ -n "$TO_REMOVE" ]; then
+      # Show what would be skipped
+      SKIPPED_PACKAGES=$(comm -23 <(echo "$TO_REMOVE" | sort) <(echo "$ABSENT_PACKAGES" | sort) || true)
+      if [ -n "$SKIPPED_PACKAGES" ]; then
+        log "Packages that would be removed (--no-remove specified, skipping):"
+        echo "$SKIPPED_PACKAGES" | while read -r pkg; do
+          [ -n "$pkg" ] && echo "  - $pkg (skipped)"
+        done
+      fi
+      # Keep only packages marked as absent
+      TO_REMOVE="$ABSENT_PACKAGES"
     fi
 
     # Check if any changes are needed
@@ -210,15 +224,10 @@ let
       done
     fi
 
-    if [ -n "$TO_REMOVE" ] && [ "$NO_REMOVE" = "0" ]; then
+    if [ -n "$TO_REMOVE" ]; then
       log "Packages to remove:"
       echo "$TO_REMOVE" | while read -r pkg; do
         [ -n "$pkg" ] && echo "  - $pkg"
-      done
-    elif [ -n "$TO_REMOVE" ] && [ "$NO_REMOVE" = "1" ]; then
-      log "Packages marked for removal (--no-remove specified, keeping...):"
-      echo "$TO_REMOVE" | while read -r pkg; do
-        [ -n "$pkg" ] && echo "  - $pkg (kept)"
       done
     fi
 
@@ -239,7 +248,7 @@ let
     fi
 
     # Remove packages
-    if [ "$NO_REMOVE" = "0" ] && [ -n "$TO_REMOVE" ]; then
+    if [ -n "$TO_REMOVE" ]; then
       log "Removing packages..."
       REMOVE_LIST=$(echo "$TO_REMOVE" | tr '\n' ' ')
       if [ "$DRY_RUN" = "1" ]; then
@@ -269,17 +278,7 @@ let
     fi
 
     # Save new state
-    # When --no-remove is used, we need to merge old removed packages into new state
-    if [ "$NO_REMOVE" = "1" ] && [ -n "$TO_REMOVE" ]; then
-      # Add removed packages back to the new state to maintain them
-      MAINTAINED_PACKAGES=$(echo "$TO_REMOVE" | while read -r pkg; do
-        [ -n "$pkg" ] && echo "{\"name\":\"$pkg\",\"state\":\"present\"}"
-      done | jq -s '.')
-
-      FINAL_STATE=$(echo "$NEW_STATE" | jq --argjson maintained "$MAINTAINED_PACKAGES" '.packages = (.packages + $maintained)')
-    else
-      FINAL_STATE="$NEW_STATE"
-    fi
+    FINAL_STATE="$NEW_STATE"
 
     log "Saving state to $STATE_FILE"
     if [ "$DRY_RUN" = "0" ]; then
