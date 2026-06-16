@@ -252,12 +252,32 @@ let
       log "Removing packages..."
       REMOVE_LIST=$(echo "$TO_REMOVE" | tr '\n' ' ')
       if [ "$DRY_RUN" = "1" ]; then
-        dryrun "sudo pacman -Rns $REMOVE_LIST"
+        dryrun "sudo pacman -Rns --noconfirm $REMOVE_LIST"
       else
-        if sudo pacman -Rns $REMOVE_LIST 2>/dev/null; then
-          log "Successfully removed packages"
+        # Try to remove each package, some may fail if they're not installed
+        FAILED=""
+        for pkg in $REMOVE_LIST; do
+          if ! sudo pacman -Rns --noconfirm $pkg 2>/dev/null; then
+            FAILED="$FAILED $pkg"
+          fi
+        done
+
+        if [ -n "$FAILED" ]; then
+          # Check if packages are actually installed
+          NOT_INSTALLED=""
+          for pkg in $FAILED; do
+            if ! pacman -Qi $pkg &>/dev/null; then
+              NOT_INSTALLED="$NOT_INSTALLED $pkg"
+            fi
+          done
+
+          if [ -n "$NOT_INSTALLED" ]; then
+            [ "$VERBOSE" = "1" ] && log "Packages not installed:$NOT_INSTALLED"
+          else
+            warn "Could not remove:$FAILED (may have dependents)"
+          fi
         else
-          warn "Some packages could not be removed (may have dependents)"
+          log "Successfully removed packages"
         fi
       fi
     fi
