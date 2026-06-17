@@ -1,6 +1,6 @@
-# Arch Package Manager for Nix
+# Arch Package Sync
 
-A standalone Nix flake that provides declarative package management for Arch Linux using yay, designed to work with system-manager.
+A Nix module for declarative Arch Linux package management, designed to work with home-manager or system-manager.
 
 ## Overview
 
@@ -16,16 +16,16 @@ This module allows you to:
 The module generates a user script that syncs your system packages with your declared configuration:
 
 1. **Configuration Phase**: Declare packages in your Nix configuration
-2. **Generation Phase**: system-manager generates sync script
-3. **Sync Phase**: User runs the sync script which reads config from flake and installs/removes packages
+2. **Generation Phase**: home-manager/system-manager installs sync script
+3. **Sync Phase**: Run `arch-package-sync` which reads config from flake and installs/removes packages
 
 ### Workflow
 ```
-1. Edit packages.nix → Define desired packages
+1. Edit flake → Define desired packages
          ↓
-2. system-manager switch → Install sync script to ~/.local/bin
+2. home-manager switch → Install sync script
          ↓  
-3. arch-package-sync → Reads flake config & syncs packages via yay
+3. arch-package-sync → Reads flake config & syncs packages
          ↓
 4. State saved → Track installed packages for next sync
 ```
@@ -34,69 +34,51 @@ The sync script uses `nix eval` to read the current package list directly from y
 
 ## Installation
 
-### As a Flake Input
+### With Home Manager
 
 ```nix
-# flake.nix
+# In your home-manager configuration
 {
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
-    system-manager.url = "github:numtide/system-manager";
-    
-    arch-package-sync = {
-      url = "github:yourusername/arch-package-sync";
-      # Or for local development:
-      # url = "path:/path/to/arch-package-sync";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.system-manager.follows = "system-manager";
-    };
-  };
-  
-  outputs = { self, nixpkgs, system-manager, arch-package-sync, ... }:
-  {
-    systemConfigs.default = system-manager.lib.makeSystemConfig {
-      modules = [
-        arch-package-sync.nixosModules.default
-        {
-          arch.packageManager = {
-            enable = true;
-            packages = [
-              { name = "postgresql"; }
-              { name = "nginx"; }
-            ];
-          };
-        }
-      ];
-    };
+  services.arch-package-sync = {
+    enable = true;
+    packages = [
+      { name = "htop"; }
+      { name = "neovim"; }
+      { name = "visual-studio-code-bin"; }  # AUR package
+    ];
   };
 }
 ```
 
 ## Configuration Options
 
-### `arch.packageManager.enable`
+### `services.arch-package-sync.enable`
 - Type: boolean
 - Default: false
-- Description: Enable Arch package management via yay
+- Description: Enable Arch package management
 
-### `arch.packageManager.removeOrphans`
-- Type: boolean  
-- Default: false
-- Description: Automatically remove orphan packages after sync
-
-### `arch.packageManager.enableRemoval`
-- Type: boolean
-- Default: false
-- Description: Automatically remove packages no longer in configuration
-
-### `arch.packageManager.packages`
+### `services.arch-package-sync.packages`
 - Type: list of package specifications
 - Default: []
 - Description: List of packages to manage
 
 Each package specification has:
-- `name` (string, required): Package name as known to pacman/aur
+- `name` (string, required): Package name as known to pacman/AUR
 - `state` (enum ["present" "absent"], default: "present"): Desired state
+
+## Command Line Options
+
+```
+arch-package-sync [OPTIONS]
+
+Options:
+  --dry-run         Show what would be done without making changes
+  --debug           Show debug output
+  --no-remove       Don't remove packages (only add/update)
+  --remove-orphans  Remove orphan packages after sync
+  --update          Run system update (yay -Syu) before syncing
+  --help, -h        Show help message
+```
 
 ## Usage
 
@@ -113,7 +95,7 @@ makepkg -si
 ### Basic Configuration
 
 ```nix
-arch.packageManager = {
+services.arch-package-sync = {
   enable = true;
   packages = [
     { name = "htop"; }
@@ -126,7 +108,7 @@ arch.packageManager = {
 ### With AUR Packages
 
 ```nix
-arch.packageManager = {
+services.arch-package-sync = {
   enable = true;
   packages = [
     { name = "htop"; }
@@ -136,15 +118,11 @@ arch.packageManager = {
 };
 ```
 
-**Note**: yay automatically handles both official and AUR packages. There's no need to specify the source.
-
-### With Package Removal
+### Removing Packages
 
 ```nix
-arch.packageManager = {
+services.arch-package-sync = {
   enable = true;
-  enableRemoval = true;  # Remove packages no longer in list
-  removeOrphans = true;  # Also remove orphan dependencies
   packages = [
     { name = "htop"; }
     { name = "nano"; state = "absent"; }  # Explicitly remove
@@ -152,9 +130,11 @@ arch.packageManager = {
 };
 ```
 
+Packages marked as `absent` are always removed. Packages no longer in the list are removed by default (use `--no-remove` to keep them).
+
 ## Running the Sync Script
 
-After updating your configuration and running `system-manager switch`, the script will be installed to `~/.local/bin/arch-package-sync`:
+After updating your configuration and running `home-manager switch`, run:
 
 ```bash
 # Sync packages (install/remove as needed)
@@ -163,47 +143,44 @@ arch-package-sync
 # Preview changes without making them
 arch-package-sync --dry-run
 
-# Show detailed output
-arch-package-sync --verbose
+# Update system first, then sync
+arch-package-sync --update
 
-# Enable removal of packages not in config (overrides flake setting)
-arch-package-sync --enable-removal
+# Only add/update packages, don't remove
+arch-package-sync --no-remove
 
-# Remove orphan packages after sync (overrides flake setting)
+# Remove orphan packages after sync
 arch-package-sync --remove-orphans
 
-# See all options
-arch-package-sync --help
+# Show debug output
+arch-package-sync --debug
 ```
-
-Note: Make sure `~/.local/bin` is in your PATH.
 
 ## State Management
 
-The module tracks managed packages in `/var/lib/arch-package-sync/state.json`. This ensures:
-- Only previously managed packages are removed
-- Manual installations are preserved
-- State persists across activations
+The module tracks managed packages in `~/.cache/arch-package-sync/state.json`. This ensures:
+- Efficient syncing (only changes what's needed)
+- State persists across runs
 
-## Integration with system-manager
+## Integration with Nix
 
-This module is designed to work alongside system-manager:
+This module complements Nix package management:
 
 ```nix
 {
-  # system-manager handles /etc, services, tmpfiles
-  environment.etc."someconfig.conf".text = "...";
-  systemd.services.myservice = { ... };
+  # Nix packages (reproducible, declarative)
+  home.packages = with pkgs; [
+    git
+    jq
+  ];
   
-  # arch-package-sync handles native packages
-  arch.packageManager.packages = [
-    { name = "nginx"; }  # Install via yay
-    { name = "docker"; }
+  # Arch packages (latest versions, AUR access)
+  services.arch-package-sync.packages = [
+    { name = "yay"; }  # AUR helper
+    { name = "visual-studio-code-bin"; }  # AUR package
   ];
 }
 ```
-
-The sync script is generated during system-manager activation but must be run manually.
 
 ## Limitations
 
@@ -215,40 +192,44 @@ The sync script is generated during system-manager activation but must be run ma
 
 ## What Happens During Sync
 
-### Success Case
+### Installing Packages
 ```
-$ /etc/arch-package-sync/sync
-[arch-package-sync] Package sync required:
+$ arch-package-sync
+[arch-package-sync] Loading package configuration from flake...
 [arch-package-sync] Packages to install:
-  + nginx
-  + docker
+  + htop
+  + neovim
 [arch-package-sync] Installing packages...
 [arch-package-sync] Successfully installed packages
-[arch-package-sync] Package sync completed successfully
+[arch-package-sync] Package sync complete
 ```
 
-### Dry Run
+### Dry Run Mode
 ```
-$ /etc/arch-package-sync/sync --dry-run
-[arch-package-sync] DRY RUN MODE - No changes will be made
-[arch-package-sync] Package sync required:
+$ arch-package-sync --dry-run
+[arch-package-sync] Loading package configuration from flake...
 [arch-package-sync] Packages to install:
-  + nginx
-[arch-package-sync] Would run: yay -S --needed --noconfirm nginx
+  + htop
+[arch-package-sync] Installing packages...
+[arch-package-sync] [DRY-RUN] yay -S --needed htop
 ```
 
-## State Management
-
-The module tracks managed packages in `/var/lib/arch-package-sync/state.json` to:
-- Avoid reinstalling existing packages
-- Enable safe package removal
-- Support rollback to previous generations
+### With System Update
+```
+$ arch-package-sync --update
+[arch-package-sync] Running system update...
+:: Synchronizing package databases...
+:: Starting full system upgrade...
+[arch-package-sync] System update complete
+[arch-package-sync] Loading package configuration from flake...
+[arch-package-sync] System is already in sync with the tracked packages list
+```
 
 ## Safety Features
 
-- **User execution**: Script runs as regular user, not root
+- **User execution**: Script runs as regular user (uses sudo only for package operations)
 - **Lock file**: Prevents concurrent executions
-- **State tracking**: Only manages explicitly declared packages
-- **Dry run mode**: Preview changes before applying
-- **No auto-removal**: Package removal disabled by default
-- **Orphan control**: Optional automatic orphan removal
+- **State tracking**: Tracks managed packages to enable safe removal
+- **Dry run mode**: Preview all changes before applying
+- **Explicit absent**: Packages must be marked `absent` or use default removal
+- **Debug mode**: Detailed logging with `--debug` flag
