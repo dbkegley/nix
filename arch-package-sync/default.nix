@@ -32,7 +32,7 @@ let
 
     # Parse arguments
     DRY_RUN=0
-    VERBOSE=0
+    DEBUG=0
     UPDATE=0
     NO_REMOVE=0
     REMOVE_ORPHANS=0
@@ -43,8 +43,8 @@ let
           DRY_RUN=1
           shift
           ;;
-        --verbose|-v)
-          VERBOSE=1
+        --debug)
+          DEBUG=1
           shift
           ;;
         --no-remove)
@@ -64,7 +64,7 @@ let
           echo ""
           echo "Options:"
           echo "  --dry-run         Show what would be done without making changes"
-          echo "  --verbose, -v     Show detailed output"
+          echo "  --debug           Show debug output"
           echo "  --no-remove       Don't remove packages (only add/update, keep removed in state)"
           echo "  --remove-orphans  Remove orphan packages after sync"
           echo "  --update          Run system update (yay -Syu) before syncing packages"
@@ -79,22 +79,27 @@ let
       esac
     done
 
-    # Logging functions
     log() {
-      echo -e "''${BLUE}[arch-package-sync]''${NC} $*"
+      echo -e "[arch-package-sync] $*"
+    }
+
+    debug() {
+      if [ "$DEBUG" = "1" ]; then
+        echo -e "[arch-package-sync] ''${BLUE}[DEBUG]''${NC} $*" >&2
+      fi
     }
 
     dryrun() {
-      echo -e "''${BLUE}[arch-package-sync] [dry-run]''${NC} $*"
+      echo -e "[arch-package-sync] ''${BLUE}[DRY-RUN]''${NC} $*"
     }
 
     error() {
-      echo -e "''${RED}[arch-package-sync] ERROR:''${NC} $*" >&2
+      echo -e "[arch-package-sync] ''${RED}[ERROR]''${NC} $*" >&2
       exit 1
     }
 
     warn() {
-      echo -e "''${YELLOW}[arch-package-sync] WARNING:''${NC} $*" >&2
+      echo -e "[arch-package-sync] ''${YELLOW}[WARN]''${NC} $*" >&2
     }
 
     if [ "$EUID" -eq 0 ]; then
@@ -145,10 +150,10 @@ let
     # Load previous state
     if [ -f "$STATE_FILE" ]; then
       OLD_STATE=$(cat "$STATE_FILE")
-      [ "$VERBOSE" = "1" ] && log "Loaded previous state from $STATE_FILE"
+      debug "Loaded previous state from $STATE_FILE"
     else
       OLD_STATE='{"version":1,"packages":[]}'
-      [ "$VERBOSE" = "1" ] && log "No previous state found, starting fresh"
+      debug "No previous state found, starting fresh"
     fi
 
     # Load new desired state from flake
@@ -254,30 +259,28 @@ let
       if [ "$DRY_RUN" = "1" ]; then
         dryrun "sudo pacman -Rns --noconfirm $REMOVE_LIST"
       else
-        # Try to remove each package, some may fail if they're not installed
+        # Try to remove packages, ignoring ones that aren't installed
+        REMOVED=""
         FAILED=""
         for pkg in $REMOVE_LIST; do
-          if ! sudo pacman -Rns --noconfirm $pkg 2>/dev/null; then
-            FAILED="$FAILED $pkg"
+          # Check if package is installed first
+          if pacman -Qi $pkg &>/dev/null; then
+            if sudo pacman -Rns --noconfirm $pkg 2>/dev/null; then
+              REMOVED="$REMOVED $pkg"
+            else
+              FAILED="$FAILED $pkg"
+            fi
+          else
+            debug "Package '$pkg' is not installed, skipping"
           fi
         done
 
-        if [ -n "$FAILED" ]; then
-          # Check if packages are actually installed
-          NOT_INSTALLED=""
-          for pkg in $FAILED; do
-            if ! pacman -Qi $pkg &>/dev/null; then
-              NOT_INSTALLED="$NOT_INSTALLED $pkg"
-            fi
-          done
-
-          if [ -n "$NOT_INSTALLED" ]; then
-            [ "$VERBOSE" = "1" ] && log "Packages not installed:$NOT_INSTALLED"
-          else
-            warn "Could not remove:$FAILED (may have dependents)"
-          fi
-        else
+        if [ -n "$REMOVED" ]; then
           log "Successfully removed packages"
+        fi
+
+        if [ -n "$FAILED" ]; then
+          warn "Could not remove:$FAILED (may have dependents)"
         fi
       fi
     fi
@@ -300,7 +303,7 @@ let
     # Save new state
     FINAL_STATE="$NEW_STATE"
 
-    log "Saving state to $STATE_FILE"
+    debug "Saving state to $STATE_FILE"
     if [ "$DRY_RUN" = "0" ]; then
       echo "$FINAL_STATE" > "$STATE_FILE"
       log "State saved to $STATE_FILE"
