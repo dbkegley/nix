@@ -6,12 +6,13 @@
 {
   imports = [
     ./user/packages.nix
-    ./user/dms.nix
+    # ./user/dms.nix
+    # ./user/hyprland.nix
     ./user/easyeffects.nix
     ./user/ghostty.nix
     ./user/git.nix
     ./user/helix.nix
-    ./user/hyprland.nix
+    ./user/niri.nix
     ./user/ssh.nix
     ./user/starship.nix
     ./user/zsh.nix

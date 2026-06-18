@@ -41,7 +41,11 @@
     "mode": "subtle",
   },
   "show_edit_predictions": true,
-  "agent_servers": {},
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
   "inlay_hints": {
     "show_background": false,
     "edit_debounce_ms": 250,
@@ -69,8 +73,8 @@
   "buffer_font_size": 15,
   "theme": {
     "mode": "dark",
-    "light": "Zed (Default)",
-    "dark": "Catppuccin Frappé",
+    "light": "Catppuccin Frappé",
+    "dark": "Catppuccin Frappé"
   },
   "lsp": {
     "golangci-lint": {

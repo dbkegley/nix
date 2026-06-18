@@ -1,7 +1,8 @@
 { config, ... }:
 {
   imports = [
-    ./system/users.nix
+    # ./system/users.nix
+    # ./system/niri.nix
   ];
 
   config = {

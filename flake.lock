@@ -11,46 +11,6 @@
       },
       "parent": []
     },
-    "dgop": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1757362540,
-        "narHash": "sha256-SrQO2Ir3E0+NcFLhlHm++9nmTVgzTkhQrgUFFEU12D4=",
-        "owner": "AvengeMedia",
-        "repo": "dgop",
-        "rev": "bc5ca7c43d0bec18e771a761e3cc8f53bdd12202",
-        "type": "github"
-      },
-      "original": {
-        "owner": "AvengeMedia",
-        "repo": "dgop",
-        "type": "github"
-      }
-    },
-    "dms-cli": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1758117050,
-        "narHash": "sha256-PjXULzEZSFjYVKJgGgzwgMhAC+QqdIlLrDVYqivp26Y=",
-        "owner": "AvengeMedia",
-        "repo": "danklinux",
-        "rev": "c91910ead1df32fddb5122667881c782dfca9897",
-        "type": "github"
-      },
-      "original": {
-        "owner": "AvengeMedia",
-        "repo": "danklinux",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -212,8 +172,6 @@
     "root": {
       "inputs": {
         "arch-package-sync": "arch-package-sync",
-        "dgop": "dgop",
-        "dms-cli": "dms-cli",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",

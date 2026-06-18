@@ -13,7 +13,7 @@
       commit.gpgsign = true;
       gpg = {
         format = "ssh";
-        ssh.program = "op-ssh-sign";
+        ssh.program = "/opt/1Password/op-ssh-sign";
       };
     };
   };
