@@ -35,6 +35,7 @@
       { name = "ghostty"; }
       { name = "1password"; }
       { name = "1password-cli"; }
+      { name = "claude-code"; }
     ];
   };
 
@@ -56,6 +57,5 @@
     rustup
     uv
     kubectl
-    claude-code
   ];
 }

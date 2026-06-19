@@ -28,7 +28,12 @@
           "alt+j=goto_split:previous"
           "alt+k=goto_split:next"
           "alt+p=toggle_command_palette"
-          "global:alt+space=toggle_quick_terminal"
+          # Quick terminal global keybind disabled: niri does not implement the
+          # org.freedesktop.portal.GlobalShortcuts protocol, so ghostty's `global:`
+          # keybinds never fire while ghostty is unfocused. (It worked under Hyprland
+          # via its key-forwarding `pass` dispatcher, which niri has no equivalent for.)
+          # https://github.com/niri-wm/niri/discussions/2775
+          # "global:alt+space=toggle_quick_terminal"
         ];
       };
     };
