@@ -18,19 +18,19 @@
       { name = "framework-system"; }
 
       # niri
-      { name = "greetd"; }
-      { name = "greetd-tuigreet"; }
       { name = "niri"; }
       { name = "gnome-keyring"; }
       { name = "xwayland-satellite"; }
       { name = "xdg-desktop-portal-gnome"; }
       { name = "xdg-desktop-portal-gtk"; }
       { name = "plasma-polkit-agent"; }
+      { name = "gpu-screen-recorder"; }
 
       # desktop shell
+      { name = "greetd"; }
+      { name = "noctalia-greeter-git"; }
       { name = "noctalia-shell"; }
       { name = "cliphist"; }
-      { name = "gpu-screen-recorder"; }
 
       # applications
       { name = "zed"; }

@@ -1,20 +1,6 @@
 { ... }:
 let
-  # https://github.com/apognu/tuigreet#theming
-  theme = "border=magenta;text=cyan;prompt=green;time=red;action=blue;button=yellow;container=black;input=red";
-
-  # tuigreet is provided by the `greetd-tuigreet` pacman package (binary: tuigreet).
-  #   --time             show a clock
-  #   --remember         remember the last logged-in username
-  #   --remember-session remember the last selected session
-  #   --asterisks        mask the password with asterisks
-  #   --sessions         directory of Wayland session desktop entries to offer;
-  #                      tuigreet lets you switch between them with F3.
-  #   --theme            component=color;... styling (see `theme` above).
-  greeter =
-    "tuigreet --time --remember --remember-session --asterisks "
-    + "--sessions /usr/share/wayland-sessions --cmd niri-session "
-    + "--theme '${theme}'";
+  greeter = "/usr/bin/noctalia-greeter-session -- --session niri";
 in
 {
   config = {
