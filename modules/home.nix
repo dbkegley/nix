@@ -6,7 +6,6 @@
 {
   imports = [
     ./user/packages.nix
-    ./user/easyeffects.nix
     ./user/ghostty.nix
     ./user/git.nix
     ./user/helix.nix

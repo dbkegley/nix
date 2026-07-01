@@ -15,7 +15,6 @@
       { name = "mesa-utils"; }
       { name = "amd-ucode"; }
       { name = "vulkan-radeon"; }
-      { name = "easyeffects"; } # https://wiki.archlinux.org/title/Framework_Laptop_13#Speakers
       { name = "framework-system"; }
 
       # niri
