@@ -1,8 +1,7 @@
 { config, ... }:
 {
   imports = [
-    # ./system/users.nix
-    # ./system/niri.nix
+    ./system/greeter.nix
   ];
 
   config = {

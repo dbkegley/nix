@@ -19,6 +19,8 @@
       { name = "framework-system"; }
 
       # niri
+      { name = "greetd"; }
+      { name = "greetd-tuigreet"; }
       { name = "niri"; }
       { name = "gnome-keyring"; }
       { name = "xwayland-satellite"; }
