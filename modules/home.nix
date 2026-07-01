@@ -11,6 +11,7 @@
     ./user/git.nix
     ./user/helix.nix
     ./user/niri.nix
+    ./user/noctalia.nix
     ./user/ssh.nix
     ./user/starship.nix
     ./user/zsh.nix

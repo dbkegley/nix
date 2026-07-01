@@ -4,6 +4,6 @@
   # This allows you to edit the settings directly in Noctalia
   xdg.configFile = {
     "noctalia/settings.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/zed/settings.jsonc";
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/noctalia/settings.json";
   };
 }
