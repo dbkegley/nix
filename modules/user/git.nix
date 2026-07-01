@@ -3,6 +3,7 @@
 
   programs.git = {
     enable = true;
+    package = null;
     settings = {
       user = {
         name = config.kegs.name;

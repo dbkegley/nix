@@ -21,6 +21,11 @@ input {
     }
 }
 
+output "DP-7" {
+    mode "3840x2160@60"
+    scale 1.75
+}
+
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
 // https://niri-wm.github.io/niri/Configuration:-Layout

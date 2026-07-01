@@ -13,6 +13,7 @@
       "alt-j": "workspace::ActivatePaneDown",
       "alt-k": "workspace::ActivatePaneUp",
       "alt-l": "workspace::ActivatePaneRight",
+      "ctrl-shift-j": "workspace::ToggleBottomDock",
     },
   },
   {
@@ -85,12 +86,24 @@
       "ctrl-w": null,
       "ctrl-alt-shift-h": "multi_workspace::ToggleWorkspaceSidebar",
       "ctrl-shift-m": "workspace::ToggleZoom",
-      "ctrl-shift-h": "workspace::ToggleLeftDock",
-      "ctrl-shift-j": "workspace::ToggleBottomDock",
-      "ctrl-shift-l": "workspace::ToggleRightDock",
-      "ctrl-shift-F": "vim::ToggleProjectPanelFocus",
+      "ctrl-shift-h": "agent::ToggleFocus",
+      "ctrl-shift-j": "terminal_panel::ToggleFocus",
+      "ctrl-shift-l": "project_panel::ToggleFocus",
+      "ctrl-shift-f": "vim::ToggleProjectPanelFocus",
       "alt-w": "workspace::CloseActiveDock",
       "alt-t": "terminal_panel::ToggleFocus",
+    },
+  },
+  {
+    "context": "AgentPanel",
+    "bindings": {
+      "ctrl-shift-h": "workspace::ToggleLeftDock",
+    },
+  },
+  {
+    "context": "ProjectPanel || OutlinePanel || GitPanel || CollabPanel",
+    "bindings": {
+      "ctrl-shift-l": "workspace::ToggleRightDock",
     },
   },
   {

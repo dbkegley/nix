@@ -10,10 +10,11 @@
       { name = "less"; }
       { name = "vim"; }
 
-      # framwork
+      # framework
       { name = "mesa"; }
       { name = "mesa-utils"; }
       { name = "amd-ucode"; }
+      { name = "vulkan-radeon"; }
       { name = "easyeffects"; } # https://wiki.archlinux.org/title/Framework_Laptop_13#Speakers
       { name = "framework-system"; }
 
@@ -28,6 +29,7 @@
       # desktop shell
       { name = "noctalia-shell"; }
       { name = "cliphist"; }
+      { name = "gpu-screen-recorder"; }
 
       # applications
       { name = "zed"; }
@@ -46,6 +48,8 @@
     jq
 
     gh
+    git
+    jujutsu
     fzf
     just
     yazi
@@ -54,6 +58,7 @@
     nixfmt
     go_1_24
     golangci-lint
+    cmake
     rustup
     uv
     kubectl

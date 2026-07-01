@@ -46,6 +46,9 @@
       # Also bind using terminfo if available
       [[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
       [[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
+
+      # jujutsu autocomplete
+      source <(COMPLETE=zsh jj)
     '';
   };
 }
