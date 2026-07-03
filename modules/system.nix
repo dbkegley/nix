@@ -2,6 +2,7 @@
 {
   imports = [
     ./system/greeter.nix
+    ./system/keyring.nix
   ];
 
   config = {
