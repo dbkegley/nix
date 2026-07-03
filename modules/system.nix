@@ -1,8 +1,10 @@
 { config, ... }:
 {
   imports = [
-    ./system/greeter.nix
+    ./system/secureboot.nix
     ./system/keyring.nix
+    ./system/greeter.nix
+    # ./system/shell.nix
   ];
 
   config = {

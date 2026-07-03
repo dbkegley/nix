@@ -1,32 +1,23 @@
-## Full Desktop Installation
+## Usage
 
-<img width="1920" height="1080" alt="desktop" src="./screenshots/desktop.png" />
-
-```bash
-nix run --experimental-features 'nix-command flakes' \
-  nixpkgs#just -- bootstrap
-
-just desktop
-```
-
-
-## Minimal Installation (home only)
+The `#arch` flake installs 
 
 ```bash
-nix run --experimental-features 'nix-command flakes' \
-  nixpkgs#home-manager -- switch --flake .#home
+...
 ```
 
+## Installation
 
-## Bootstrapping a new Arch installation
+### BIOS
+
+1. Enter BIOS and change Secure Boot to `Setup` mode
+2. Add a BIOS password so that Secure Boot cannot be disabled
+3. Boot from installation medium
 
 ### Boot from Arch iso
 
-> [!WARNING]
-> The 1password installation requires a system keyring to store MFA tokens. For convenience, the default keyring created with an empty password. This is okay as long as LUKS encryption is configured during `archintall`.
-
 1. Use [iwctl](https://wiki.archlinux.org/title/Iwd) to connect to wifi.
-2. Run `archinstall`...
+2. Run [archinstall](https://wiki.archlinux.org/title/Archinstall)
 
   ```bash
   archinstall --config-url https://raw.githubusercontent.com/dbkegley/nix/refs/heads/main/archinstall/user_configuration.json
@@ -37,10 +28,9 @@ nix run --experimental-features 'nix-command flakes' \
   #  - set log in user
   ```
 
-3. (optional) After the installation completes, exit archinstall (do not chroot) and save `/var/log/archinstall` into `/mnt/root` if you want to.
-4. Reboot.
-5. Use `nmcli` to connect to wifi.
-6. [Upgrade firmware](https://wiki.archlinux.org/title/Fwupd).
+3. Reboot.
+4. Use `nmcli` to connect to wifi.
+5. [Upgrade firmware](https://wiki.archlinux.org/title/Fwupd).
 
   ```bash
   # make sure the battery is less than 100% and the laptop is plugged in to power
@@ -49,20 +39,43 @@ nix run --experimental-features 'nix-command flakes' \
   fwupdmgr update
   ```
 
-## Misc Notes
+### Bootstrap desktop installation
 
-Check GPU driver status: `eglinfo -B`
+```bash
+# bootstrap home-manager configuration, home setup (installs home-manager and system-manager in user profile)
+nix run --experimental-features 'nix-command flakes' \
+  nixpkgs#home-manager -- switch --flake .#arch
 
-Remove packages with `pacman -Rsnu`
+# install system packages with pacman/yay which are managed outside of nix
+aps --update
 
-Some of the package installations in `home.nix` use `package = null` because the nix version of the package is not compatible with arch. This allows home-manager to be used for configuration while installing system packages with `pacman -S`.
+# set up system level configurations managed by nix system-manager
+sm-update
 
-> This configuration was originally bootstrapped with:
-  `nix flake init -t github:misterio77/nix-starter-config#standard`
+# change shell to zsh
+chsh -s $(which zsh) 
+```
 
+### [Configure Secure Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Assisted_process_with_systemd)
 
-### 1Password
+```bash
+# backup current variables
+for var in PK KEK db dbx ; do efi-readvar -v $var -o old_${var}.esl ; done
 
-`1password` was [really annoying to get working](https://www.1password.community/discussions/1password/1password-and-gnome-keyring-for-2fa-saving-on-archlinux/95688).
+# generate signing keys and sign
+sudo ukify genkey --config /etc/kernel/uki.conf
 
-`just desktop` installs `1password`, `gnome-keyring` and `libsecret`. It also configures a default keyring with an empty password. `sddm` starts the keyring daemon and unlocks the keyring automatically on login. See the explanation [here](https://github.com/basecamp/omarchy/pull/1860#issue-3438642243) for details.
+systemd-sbsign sign \
+  --private-key /etc/kernel/secure-boot-private-key.pem \
+  --certificate /etc/kernel/secure-boot-certificate.pem \
+  --output /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+
+bootctl install --secure-boot-auto-enroll yes \
+  --certificate /etc/kernel/secure-boot-certificate.pem \
+  --private-key /etc/kernel/secure-boot-private-key.pem
+```
+
+### Keyring
+
+Make sure that the default keyring password matches your login user password. This allows the keyring to unlock automatically on login.

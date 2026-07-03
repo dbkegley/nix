@@ -10,6 +10,10 @@
       { name = "less"; }
       { name = "vim"; }
 
+      # secure boot
+      { name = "efitools"; }
+      { name = "systemd-ukify"; }
+
       # framework
       { name = "mesa"; }
       { name = "mesa-utils"; }
