@@ -10,7 +10,9 @@ The `#arch` flake installs
 
 ### BIOS
 
-1. Enter BIOS and change Secure Boot to `Setup` mode
+1. Enter BIOS and change Secure Boot to `Setup` mode by clearing the current keys
+  - Clear current keys in Secure Boot settings
+  - Enable Secure Boot
 2. Add a BIOS password so that Secure Boot cannot be disabled
 3. Boot from installation medium
 
@@ -39,6 +41,15 @@ The `#arch` flake installs
   fwupdmgr update
   ```
 
+6. Edit `/etc/fstab` to [fix the `/boot` partition](https://bbs.archlinux.org/viewtopic.php?id=287790) by setting `fmask=0077` and `dmask=0077`. Then re-mount:
+
+  ```bash
+  sudo systemctl daemon-reload
+  sudo umount /boot
+  sudo mount -a
+  ```
+
+
 ### Bootstrap desktop installation
 
 ```bash
@@ -59,21 +70,21 @@ chsh -s $(which zsh)
 ### [Configure Secure Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Assisted_process_with_systemd)
 
 ```bash
-# backup current variables
-for var in PK KEK db dbx ; do efi-readvar -v $var -o old_${var}.esl ; done
-
 # generate signing keys and sign
 sudo ukify genkey --config /etc/kernel/uki.conf
 
-systemd-sbsign sign \
-  --private-key /etc/kernel/secure-boot-private-key.pem \
-  --certificate /etc/kernel/secure-boot-certificate.pem \
-  --output /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
-  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+sudo /usr/lib/systemd/systemd-sbsign sign \
+--private-key /etc/kernel/secure-boot-private-key.pem \
+--certificate /etc/kernel/secure-boot-certificate.pem \
+--output /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+/usr/lib/systemd/boot/efi/systemd-bootx64.efi
 
-bootctl install --secure-boot-auto-enroll yes \
+sudo bootctl install --secure-boot-auto-enroll yes \
   --certificate /etc/kernel/secure-boot-certificate.pem \
   --private-key /etc/kernel/secure-boot-private-key.pem
+
+# Set secure-boot-enroll force in /boot/loader/loader.conf
+# and reboot to enroll the keys in the firmware
 ```
 
 ### Keyring
