@@ -1,16 +1,54 @@
-... Description/intro/goals ...
+# Arch + Nix System/Home Manager
+
+A mostly declarative configuration for Arch Linux, managed with Nix flakes.
+
+The goal is a reproducible system where both the OS and my user environment are
+defined in one repo and applied with a single command — without giving up Arch
+and pacman for NixOS.
+
+- **OS-level config** (Secure Boot, greetd, PAM, users) via
+  [system-manager](https://github.com/numtide/system-manager).
+- **User-level config** (dotfiles, shell, editors, desktop) via
+  [home-manager](https://nix-community.github.io/home-manager).
+- **Native Arch packages** (things that want to be system packages, e.g. niri,
+  Framework tooling, 1Password) via `arch-package-sync`, which reconciles
+  pacman/yay against a declared list defined in the nix configuration.
 
 ## Usage
 
-Day-to-day usage, maintenance tasks, software/tools summary, etc.
+Apply changes after editing the config:
 
 ```bash
-...
+hm-update   # home-manager switch --flake ~/nix#arch
+sm-update   # system-manager switch --flake ~/nix#arch --sudo
 ```
 
-## Repo structure
+Reconcile native Arch packages with the declared list in `modules/user/packages.nix`:
 
-... TODO ...
+```bash
+arch-package-sync --remove-orphans --update
+```
+
+## Important software
+
+Core tooling this repo configures and/or installs:
+
+**Nix management**
+- [system-manager](https://github.com/numtide/system-manager) — declarative OS config on non-NixOS distros
+- [home-manager](https://nix-community.github.io/home-manager) — declarative user environment
+- `arch-package-sync` — reconciles pacman/yay against a declared package list ([`./arch-package-sync`](./arch-package-sync))
+
+**Desktop**
+- [niri](https://github.com/YaLTeR/niri) — scrollable-tiling Wayland compositor
+- [noctalia-shell](https://github.com/noctalia-dev/noctalia-shell) — desktop shell (bar, launcher, greeter)
+- [greetd](https://sr.ht/~kennylevinsen/greetd/) — minimal login/display manager
+- [gnome-keyring](https://wiki.archlinux.org/title/GNOME/Keyring) — secret storage, auto-unlocked on login
+
+**Terminal & editors**
+- [Ghostty](https://ghostty.org) — terminal emulator
+- [Zed](https://zed.dev) — primary editor
+- [Helix](https://helix-editor.com) — modal terminal editor
+- [zsh](https://www.zsh.org/) + [Starship](https://starship.rs) — shell and prompt
 
 ## Bootstrapping a new Arch installation
 
