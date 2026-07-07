@@ -42,8 +42,7 @@ hm-update  # Alias: home-manager switch --flake $HOME/nix/#arch
 
 ## External Resources
 
-- **system-manager source**: `/home/david/code/system-manager`
-- **system-manager docs**: https://github.com/numtide/system-manager
+- **system-manager source**: https://github.com/numtide/system-manager
 - **home-manager docs**: https://nix-community.github.io/home-manager
 
 ## Testing Commands
