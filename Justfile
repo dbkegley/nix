@@ -1,179 +1,145 @@
-bootstrap: _install_yay
+# One-command bootstrap for a fresh Arch installation post-archinstall
+# Prerequisite: Secure Boot: *Setup Mode* (keys cleared in BIOS); Secure Boot: *ON*
+bootstrap: _label_root_partition _harden_boot_fstab
   #!/usr/bin/env bash
   set -euo pipefail
+  log() { printf '\n\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 
-  grep -qF "experimental-features" /etc/nix/nix.conf || \
-    (echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf)
+  cd "$HOME/nix"
 
-  nix run nixpkgs#home-manager -- switch --flake .#home
+  # installs home-manager, system-manager and arch-package-sync into the nix profile
+  log "Applying home-manager configuration"
+  nix --extra-experimental-features 'nix-command flakes' run \
+    nixpkgs#home-manager -- switch --flake .#arch
 
-  # add nix-managed zsh to /etc/shells
-  zsh="$(which zsh)"
-  grep -qF "$zsh" /etc/shells || \
-    (echo "$zsh" | sudo tee -a /etc/shells)
+  log "Syncing system packages managed outside nix (pacman + yay)"
+  arch-package-sync --remove-orphans --update
 
-  # change default shell
-  if [ "$SHELL" != "$zsh" ]; then
-    chsh -s "$zsh" && echo "Default shell updated. You need to re-login!"
-  fi
+  log "Applying system-manager configuration (secure boot, greetd, PAM, ...)"
+  system-manager switch --flake "$HOME/nix#arch" --sudo
 
+  log "Setting up Secure Boot (sbctl)"
 
-# full hyprland desktop and system dependency installation
-desktop:
-  just _setup_sddm
-  just _install_system_packages
-  just _setup_1password
-
-
-_install_yay:
-  #!/usr/bin/env bash
-  set -euo pipefail
-
-  if command -v yay >/dev/null 2>&1; then
-    echo "yay is already installed."
+  # generate signing keys once (stored in /var/lib/sbctl) -- never
+  # regenerate, or we invalidate keys already enrolled in firmware
+  if sudo test -d /var/lib/sbctl/keys; then
+    echo "Signing keys already exist; keeping them."
   else
-    git clone https://aur.archlinux.org/yay.git $HOME/.local/share/yay
-    cd $HOME/.local/share/yay && makepkg --noconfirm -si && cd -
+    echo "Generating Secure Boot signing keys..."
+    sudo sbctl create-keys
   fi
 
-
-_install_system_packages:
-  #!/usr/bin/env bash
-  set -euo pipefail
-
-  framework13=(
-    mesa             # gpu drivers
-    mesa-utils
-    amd-ucode        # amd cpu microcode updates
-    framework-system # framwork utils
-
-    # https://wiki.archlinux.org/title/Framework_Laptop_13#Speakers
-    easyeffects
-  )
-
-  applications=(
-    firefox
-    ghostty
-  )
-
-  hyprland=(
-    # hyprland
-    polkit
-    polkit-kde-agent
-    uwsm
-    libnewt
-    hyprland
-    hyprpicker
-    hyprland-qt-support
-    qt5-wayland
-    qt6-wayland
-    xdg-desktop-portal-hyprland
-
-    # dank material shell
-    cava             # audio equalizer
-    wl-clipboard     # clipboard persistence
-    cliphist         # clipboard history
-    bluez            # bluetooth control
-    brightnessctl    # screen brightness
-    networkmanager   # network control
-    ttf-0xproto-nerd # nerd font
-  )
-
-  # screenshots
-  hyprshot=(
-    grim
-    slurp
-    hyprshot
-  )
-
-  pacman_pkgs_cmd=(
-    pacman --noconfirm --needed -S
-      ${framework13[*]}
-      ${applications[*]}
-      ${hyprland[*]}
-      ${hyprshot[*]}
-  )
-
-  yay_pkgs_cmd=(
-    yay --noconfirm --needed -S
-      aur/quickshell-git
-      1password
-      1password-cli
-  )
-
-  sudo ${pacman_pkgs_cmd[*]}
-  ${yay_pkgs_cmd[*]}
-
-
-_setup_1password: _setup_keyring
-  #!/usr/bin/env bash
-  set -euo pipefail
-
-  # TODO: unclear if yay -S 1password-cli sets up the requires group
-  # groupadd -f onepassword-cli && \
-  # chgrp onepassword-cli /usr/local/bin/op && \
-  # chmod g+s /usr/local/bin/op
-
-  if command -v op-ssh-sign >/dev/null 2>&1; then
-    echo "1password op-ssh-sign is already installed."
+  # enroll our keys plus the Microsoft certificates (-m keeps MS-signed
+  # option ROMs bootable and allows dbx revocation updates). Enrollment is
+  # only possible while the firmware is in Setup Mode.
+  if sudo sbctl status --json | grep -q '"setup_mode": *true'; then
+    echo "Firmware is in Setup Mode; enrolling keys (+ Microsoft certificates)..."
+    sudo sbctl enroll-keys --microsoft
+    echo "Keys enrolled; Secure Boot will enforce from the next boot."
+  elif sudo sbctl status --json | grep -q '"secure_boot": *true'; then
+    echo "Secure Boot is already enabled; keys are enrolled."
   else
-    echo "Installing 1password op-ssh-sign..."
-    ln -sf /opt/1Password/op-ssh-sign /usr/local/bin/op-ssh-sign
+    echo "WARNING: firmware is not in Setup Mode; keys were NOT enrolled." >&2
+    echo "Clear the Secure Boot keys in the BIOS, boot, and re-run bootstrap." >&2
   fi
 
+  # sign systemd-boot at its source: bootctl install/update prefer a .signed
+  # loader, and systemd-boot-update.service refreshes the ESP copy on boot
+  # after systemd upgrades (sbctl's pacman hook re-signs the source first)
+  echo "Signing systemd-boot and installing it to the ESP..."
+  src=/usr/lib/systemd/boot/efi/systemd-bootx64.efi
+  sudo sbctl sign -s -o "$src.signed" "$src"
+  sudo bootctl install
+  sudo systemctl enable systemd-boot-update.service
 
-_setup_sddm:
+  # build the UKI defined by the mkinitcpio preset (the post hook signs it)
+  # and track it in sbctl's database (-s) so `sbctl verify` covers it
+  echo "Building and signing the Unified Kernel Image..."
+  sudo install -d /boot/EFI/Linux
+  sudo mkinitcpio -P
+  sudo sbctl sign -s /boot/EFI/Linux/arch-linux-lts.efi
+
+  # sign fwupd's EFI binary (Arch ships it unsigned); fwupd prefers the
+  # .signed variant, so firmware updates keep working under Secure Boot
+  echo "Signing fwupd's EFI binary..."
+  sudo sbctl sign -s -o /usr/lib/fwupd/efi/fwupdx64.efi.signed \
+    /usr/lib/fwupd/efi/fwupdx64.efi
+
+  # boot the signed UKI by default; archinstall's unsigned entry remains a
+  # fallback for when Secure Boot is disabled
+  echo "Setting the signed UKI as the default boot entry..."
+  sudo bootctl set-default arch-linux-lts.efi
+
+  # verify everything sbctl tracks -- fail loudly now rather than at the
+  # next Secure Boot boot
+  echo "Verifying signatures of all tracked files..."
+  sudo sbctl verify
+
+  log "Setting login shell to zsh"
+  zsh="$(command -v zsh)"
+  grep -qxF "$zsh" /etc/shells || echo "$zsh" | sudo tee -a /etc/shells >/dev/null
+  if [ "$SHELL" = "$zsh" ]; then
+    echo "Login shell is already $zsh."
+  else
+    chsh -s "$zsh"
+    echo "Login shell changed to $zsh (takes effect at next login)."
+  fi
+
+  log "Bootstrap complete. Reboot to boot the signed UKI with Secure Boot enforcing."
+
+
+# Harden the ESP mount: archinstall mounts /boot with fmask/dmask=0022
+# (world-readable); tighten to 0077 so secrets on the ESP aren't world-readable.
+_harden_boot_fstab:
   #!/usr/bin/env bash
   set -euo pipefail
+  log() { printf '\n\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 
-  if [[ "$EUID" == 0 ]]; then
-    echo "do not execute this as root."
-    exit 1
+  log "Hardening the /boot (ESP) mount options in /etc/fstab"
+
+  boot_line="$(grep -E '[[:space:]]/boot[[:space:]]' /etc/fstab || true)"
+  if [ -z "$boot_line" ]; then
+    echo "No /boot entry in fstab; skipping."
+    exit 0
+  fi
+  if echo "$boot_line" | grep -q 'fmask=0077' && echo "$boot_line" | grep -q 'dmask=0077'; then
+    echo "/boot is already mounted with fmask=0077,dmask=0077."
+    exit 0
   fi
 
-  sudo mkdir -p /etc/sddm.conf.d
-  if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
-    sudo tee /etc/sddm.conf.d/autologin.conf << EOF
-  [Autologin]
-  User=$USER
-  Session=hyprland-uwsm
-  [Theme]
-  Current=breeze
-  EOF
-  fi
-
-  sudo pacman --noconfirm --needed -S sddm
-  sudo systemctl enable getty@tty1.service
-  sudo systemctl enable sddm.service
+  echo "Setting fmask=0077,dmask=0077 on the /boot entry..."
+  sudo sed -i -E '/[[:space:]]\/boot[[:space:]]/ { s/fmask=[0-7]+/fmask=0077/; s/dmask=[0-7]+/dmask=0077/ }' /etc/fstab
   sudo systemctl daemon-reload
 
+  # vfat ignores mask changes on remount, so a full umount/mount is required
+  if sudo umount /boot 2>/dev/null; then
+    sudo mount /boot
+    echo "/boot remounted with fmask=0077,dmask=0077."
+  else
+    echo "Could not remount /boot now (in use); new options apply on next boot."
+  fi
 
-_setup_keyring:
+
+# Assign the LUKS-backing partition a stable GPT name ('cryptroot') so the
+# declarative UKI cmdline (cryptdevice=PARTLABEL=cryptroot) is portable.
+_label_root_partition:
   #!/usr/bin/env bash
   set -euo pipefail
+  log() { printf '\n\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 
-  sudo pacman --noconfirm --needed -S \
-    libsecret \
-    gnome-keyring
+  mapping=root
+  label=cryptroot
 
-  KEYRING_DIR="$HOME/.local/share/keyrings"
-  KEYRING_FILE="Default_keyring.keyring"
-  DEFAULT_FILE="default"
+  log "Labeling the LUKS partition '$label' for the UKI kernel cmdline"
 
-  mkdir -p "$KEYRING_DIR"
-  cat << EOF > "$KEYRING_DIR/$KEYRING_FILE"
-  [keyring]
-  display-name=Default keyring
-  ctime=$(date +%s)
-  mtime=0
-  lock-on-idle=false
-  lock-after=false
-  EOF
+  backing="$(sudo cryptsetup status "$mapping" | awk '/device:/ {print $2}')"
+  disk="/dev/$(lsblk -dno pkname "$backing")"
+  partnum="$(cat "/sys/class/block/$(basename "$backing")/partition")"
 
-  cat << EOF > "$KEYRING_DIR/$DEFAULT_FILE"
-  Default_keyring
-  EOF
-
-  chmod 700 "$KEYRING_DIR"
-  chmod 600 "$KEYRING_DIR/$KEYRING_FILE"
-  chmod 644 "$KEYRING_DIR/$DEFAULT_FILE"
+  if [ "$(lsblk -dno PARTLABEL "$backing")" = "$label" ]; then
+    echo "Partition $backing is already labeled '$label'."
+  else
+    echo "Labeling $backing (disk $disk, partition $partnum) as '$label'..."
+    sudo sfdisk --part-label "$disk" "$partnum" "$label"
+    echo "Partition labeled."
+  fi

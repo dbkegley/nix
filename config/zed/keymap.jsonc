@@ -13,6 +13,7 @@
       "alt-j": "workspace::ActivatePaneDown",
       "alt-k": "workspace::ActivatePaneUp",
       "alt-l": "workspace::ActivatePaneRight",
+      "ctrl-shift-j": "workspace::ToggleBottomDock",
     },
   },
   {
@@ -29,7 +30,6 @@
       "space b": "tab_switcher::ToggleAll",
       "space f": "file_finder::Toggle",
       "space t": "terminal_panel::ToggleFocus",
-      "space /": "pane::DeploySearch",
       "alt-h": "workspace::ActivatePaneLeft",
       "alt-j": "workspace::ActivatePaneDown",
       "alt-k": "workspace::ActivatePaneUp",
@@ -85,12 +85,24 @@
       "ctrl-w": null,
       "ctrl-alt-shift-h": "multi_workspace::ToggleWorkspaceSidebar",
       "ctrl-shift-m": "workspace::ToggleZoom",
-      "ctrl-shift-h": "workspace::ToggleLeftDock",
-      "ctrl-shift-j": "workspace::ToggleBottomDock",
-      "ctrl-shift-l": "workspace::ToggleRightDock",
-      "ctrl-shift-F": "vim::ToggleProjectPanelFocus",
+      "ctrl-shift-h": "agent::ToggleFocus",
+      "ctrl-shift-j": "terminal_panel::ToggleFocus",
+      "ctrl-shift-l": "project_panel::ToggleFocus",
+      "ctrl-shift-f": "vim::ToggleProjectPanelFocus",
       "alt-w": "workspace::CloseActiveDock",
       "alt-t": "terminal_panel::ToggleFocus",
+    },
+  },
+  {
+    "context": "AgentPanel",
+    "bindings": {
+      "ctrl-shift-h": "workspace::ToggleLeftDock",
+    },
+  },
+  {
+    "context": "ProjectPanel || OutlinePanel || GitPanel || CollabPanel",
+    "bindings": {
+      "ctrl-shift-l": "workspace::ToggleRightDock",
     },
   },
   {
@@ -231,6 +243,24 @@
     "context": "Editor && edit_prediction",
     "unbind": {
       "alt-tab": "editor::AcceptEditPrediction",
+    },
+  },
+  {
+    "context": "(vim_mode == helix_normal || vim_mode == helix_select) && !menu",
+    "bindings": {
+      "space /": "text_finder::Toggle",
+    },
+    "unbind": {
+      "space /": "pane::DeploySearch",
+    },
+  },
+  {
+    "context": "!Editor && !Terminal",
+    "bindings": {
+      "space /": "text_finder::Toggle",
+    },
+    "unbind": {
+      "space /": "pane::DeploySearch",
     },
   },
 ]

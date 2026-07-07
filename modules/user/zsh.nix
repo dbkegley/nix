@@ -10,8 +10,11 @@
       EDITOR = "hx";
     };
     shellAliases = {
-      hm-update = "home-manager switch --flake $HOME/nix/#desktop";
+      hm-update = "home-manager switch --flake $HOME/nix/#arch";
       hm-rollback = "home-manager generations | head -2 | tail -1 | awk '{print $NF}' | xargs -I{} sh -c '{}/activate'";
+      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
+      aps = "arch-package-sync --remove-orphans";
+      zed = "zeditor";
       k = "kubectl";
       ll = "ls -al --color=auto";
     };
@@ -43,6 +46,9 @@
       # Also bind using terminfo if available
       [[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
       [[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
+
+      # jujutsu autocomplete
+      source <(COMPLETE=zsh jj)
     '';
   };
 }

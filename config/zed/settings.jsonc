@@ -7,6 +7,8 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  // "lsp_results_location": "picker",
+  "hover_popover_enabled": false,
   "cli_default_open_behavior": "new_window",
   "project_panel": {
     "dock": "right",
@@ -19,7 +21,6 @@
   },
   "file_scan_exclusions": ["**/vendor"],
   "diff_view_style": "unified",
-  "auto_signature_help": true,
   "show_signature_help_after_edits": true,
   "agent": {
     "message_editor_min_lines": 5,
@@ -41,8 +42,13 @@
     "mode": "subtle",
   },
   "show_edit_predictions": true,
-  "agent_servers": {},
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry",
+    },
+  },
   "inlay_hints": {
+    "enabled": true,
     "show_background": false,
     "edit_debounce_ms": 250,
   },
@@ -69,7 +75,7 @@
   "buffer_font_size": 15,
   "theme": {
     "mode": "dark",
-    "light": "Zed (Default)",
+    "light": "Catppuccin Frappé",
     "dark": "Catppuccin Frappé",
   },
   "lsp": {
