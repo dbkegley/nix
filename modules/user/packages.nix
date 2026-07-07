@@ -11,8 +11,7 @@
       { name = "vim"; }
 
       # secure boot
-      { name = "efitools"; }
-      { name = "systemd-ukify"; }
+      { name = "sbctl"; }
 
       # framework
       { name = "mesa"; }

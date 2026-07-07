@@ -1,18 +1,26 @@
+... Description/intro/goals ...
+
 ## Usage
 
-The `#arch` flake installs 
+Day-to-day usage, maintenance tasks, software/tools summary, etc.
 
 ```bash
 ...
 ```
 
-## Installation
+## Repo structure
+
+... TODO ...
+
+## Bootstrapping a new Arch installation
 
 ### BIOS
 
-1. Enter BIOS and change Secure Boot to `Setup` mode by clearing the current keys
-  - Clear current keys in Secure Boot settings
-  - Enable Secure Boot
+1. Enter BIOS and put Secure Boot into `Setup` mode by clearing/erasing the current
+   keys. Leave Secure Boot enforcement *enabled* (on Framework: "Enforce Secure Boot"):
+   in Setup Mode it is inactive, and it activates automatically once bootstrap enrolls
+   the new keys. Setup Mode persists across reboots until a new Platform Key is
+   enrolled, so the ISO and the fresh install boot normally in the meantime.
 2. Add a BIOS password so that Secure Boot cannot be disabled
 3. Boot from installation medium
 
@@ -41,51 +49,43 @@ The `#arch` flake installs
   fwupdmgr update
   ```
 
-6. Edit `/etc/fstab` to [fix the `/boot` partition](https://bbs.archlinux.org/viewtopic.php?id=287790) by setting `fmask=0077` and `dmask=0077`. Then re-mount:
+### Bootstrap
 
-  ```bash
-  sudo systemctl daemon-reload
-  sudo umount /boot
-  sudo mount -a
-  ```
-
-
-### Bootstrap desktop installation
+Clone this repo to `$HOME/nix`, then run the `bootstrap` target. It is idempotent
+and does everything else in one command:
 
 ```bash
-# bootstrap home-manager configuration, home setup (installs home-manager and system-manager in user profile)
-nix run --experimental-features 'nix-command flakes' \
-  nixpkgs#home-manager -- switch --flake .#arch
-
-# install system packages with pacman/yay which are managed outside of nix
-aps --update
-
-# set up system level configurations managed by nix system-manager
-sm-update
-
-# change shell to zsh
-chsh -s $(which zsh) 
+git clone https://github.com/dbkegley/nix "$HOME/nix" && cd "$HOME/nix"
+nix --extra-experimental-features 'nix-command flakes' run nixpkgs#just -- bootstrap
 ```
 
-### [Configure Secure Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Assisted_process_with_systemd)
+`just bootstrap` performs, in order:
 
-```bash
-# generate signing keys and sign
-sudo ukify genkey --config /etc/kernel/uki.conf
+1. **Labels the LUKS partition `cryptroot`** so the UKI kernel cmdline is portable
+   (`cryptdevice=PARTLABEL=cryptroot`). Only the GPT partition *name* changes; the
+   PARTUUID is untouched, so the archinstall-generated fallback entry keeps working.
+2. **Hardens the `/boot` (ESP) mount** to `fmask=0077,dmask=0077`.
+3. **Applies the home-manager and system-manager configuration** and syncs
+   pacman/yay packages.
+4. **Configures [Secure Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Assisted_process_with_sbctl)
+   with sbctl:** creates signing keys (once) and enrolls them — together with the
+   Microsoft certificates — directly into the firmware while it is in Setup Mode,
+   signs systemd-boot and fwupd's EFI binary, builds + signs a Unified Kernel Image
+   via the mkinitcpio preset, and makes the UKI the default boot entry.
+5. **Sets the login shell to zsh.**
 
-sudo /usr/lib/systemd/systemd-sbsign sign \
---private-key /etc/kernel/secure-boot-private-key.pem \
---certificate /etc/kernel/secure-boot-certificate.pem \
---output /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
-/usr/lib/systemd/boot/efi/systemd-bootx64.efi
+Reboot when it finishes. Keys are enrolled during bootstrap, so the first reboot
+already boots the signed UKI with Secure Boot enforcing. The unsigned bare-kernel
+entry created by archinstall remains as a fallback that boots only with Secure
+Boot disabled.
 
-sudo bootctl install --secure-boot-auto-enroll yes \
-  --certificate /etc/kernel/secure-boot-certificate.pem \
-  --private-key /etc/kernel/secure-boot-private-key.pem
-
-# Set secure-boot-enroll force in /boot/loader/loader.conf
-# and reboot to enroll the keys in the firmware
-```
+After bootstrap everything re-signs itself: the stock mkinitcpio pacman hook
+rebuilds the UKI whenever a package changes its inputs, a mkinitcpio post hook
+(see `modules/system/secureboot.nix`) signs every rebuilt UKI, sbctl's own pacman
+hook re-signs the bootloader and fwupd binaries, and `systemd-boot-update.service`
+copies the freshly signed loader onto the ESP at the next boot. Firmware updates
+via `fwupdmgr` keep working under Secure Boot because fwupd's EFI binary is signed
+with our key. Run `sudo sbctl verify` to check signing status at any time.
 
 ### Keyring
 
