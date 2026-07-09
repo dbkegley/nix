@@ -249,6 +249,7 @@
     "context": "(vim_mode == helix_normal || vim_mode == helix_select) && !menu",
     "bindings": {
       "space /": "text_finder::Toggle",
+      "space .": "workspace::ReopenLastPicker",
     },
     "unbind": {
       "space /": "pane::DeploySearch",
@@ -258,6 +259,7 @@
     "context": "!Editor && !Terminal",
     "bindings": {
       "space /": "text_finder::Toggle",
+      "space .": "workspace::ReopenLastPicker",
     },
     "unbind": {
       "space /": "pane::DeploySearch",
