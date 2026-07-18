@@ -84,12 +84,11 @@ Options:
 
 ### Prerequisites
 
-Install yay (AUR helper):
+Install `yay` (AUR helper):
+
 ```bash
-cd /tmp
 git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
+cd yay && makepkg -si
 ```
 
 ### Basic Configuration

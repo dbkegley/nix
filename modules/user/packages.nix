@@ -46,25 +46,36 @@
   };
 
   home.packages = with pkgs.unstable; [
-    # bootstrap
+    # system bootstrap
     pkgs.system-manager
     pkgs.yay
     jq
 
+    # developer tools
+    fzf
     gh
     git
     jujutsu
-    fzf
     just
-    yazi
+    cmake
+
+    # nix
     nil
     nixd
     nixfmt
-    go_1_24
+
+    # go
+    go
     golangci-lint
-    cmake
+
+    # rust
     rustup
+
+    # python
     uv
-    kubectl
+
+    # odin
+    odin
+    ols
   ];
 }
