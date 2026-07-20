@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "keybinds": {
+    "dialog.select.prev": "up,ctrl+p,alt+k",
+    "dialog.select.next": "down,ctrl+n,alt+j",
+    "dialog.select.home": "home,alt+h",
+    "dialog.select.end": "end,alt+l",
+    "prompt.autocomplete.prev": "up,ctrl+p,alt+k",
+    "prompt.autocomplete.next": "down,ctrl+n,alt+j"
+  }
+}

@@ -25,8 +25,6 @@
           "alt+shift+v=new_split:down"
           "alt+h=previous_tab"
           "alt+l=next_tab"
-          "alt+j=goto_split:previous"
-          "alt+k=goto_split:next"
           "alt+p=toggle_command_palette"
           # Quick terminal global keybind disabled: niri does not implement the
           # org.freedesktop.portal.GlobalShortcuts protocol, so ghostty's `global:`

@@ -42,6 +42,13 @@
       { name = "1password"; }
       { name = "1password-cli"; }
       { name = "claude-code"; }
+      { name = "opencode"; }
+
+      # temp antgame dev
+      # TODO: project-specific flake for this
+      { name = "odin"; }
+      { name = "ols"; }
+      { name = "raylib"; }
     ];
   };
 
@@ -73,9 +80,5 @@
 
     # python
     uv
-
-    # odin
-    odin
-    ols
   ];
 }
