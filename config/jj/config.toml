@@ -1,0 +1,59 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[user]
+name = "David Kegley"
+email = "david@kegley.me"
+
+[git]
+fetch = ["origin", "upstream"]
+push = "origin"
+push-bookmark-prefix = "kegs-"
+
+[revset-aliases]
+# Commits I authored that look orphaned (e.g. left behind after a squash-merge
+# deleted their bookmark on fetch). Protects: anything in trunk, anything
+# immutable (tagged releases / shared history — jj abandon can't rewrite these
+# anyway), anything still pushed to a remote (::remote_bookmarks() = unmerged PR
+# work), anything at or below a local bookmark (::bookmarks()), and my current
+# working stack + its descendants (::@ | @::).
+#
+# working_copies() covers the @ of EVERY workspace (not just the current one),
+# so tidy won't abandon another workspace's working copy or its descendants.
+#
+# bookmarks():: (descendants of LOCAL bookmarks) IS included: it protects commits
+# stacked above a local bookmark you forgot to advance. Cost: junk stacked above
+# a *stale* local bookmark is hidden too — so keep dead local bookmarks pruned
+# (`jj bookmark delete`) for this to stay accurate.
+#
+# remote_bookmarks():: (descendants of REMOTE bookmarks) is deliberately EXCLUDED:
+# remote bookmarks include everyone's branches, so their descendants cover the
+# whole graph and would make this match nothing.
+'orphans()' = '''
+  mine()
+    ~ ::trunk()
+    ~ immutable()
+    ~ (::working_copies() | working_copies()::)
+    ~ (::bookmarks() | bookmarks()::)
+    ~ ::remote_bookmarks()
+'''
+
+# Only orphans safe to abandon: those with NO kept descendant. Abandoning a
+# commit rebases its descendants, so an orphan sitting below a commit that isn't
+# itself an orphan — a teammate's commit, or your own GitHub-web commits under a
+# different email that mine() doesn't match — must NOT be abandoned, or that
+# commit gets rebased and conflicts. `~ ::(~orphans())` drops any orphan that is
+# an ancestor of a non-orphan, leaving only fully-orphaned subtrees.
+'stale()' = 'orphans() ~ ::(~orphans())'
+
+# Local bookmarks with no remote bookmark at their target and not merged into
+# trunk: never-pushed WIP, or branches whose remote was deleted after a squash-
+# merge. Deleting these is local-only (no remote to propagate to). The review
+# step matters: a bookmark whose local target is AHEAD of its remote would also
+# appear here, so eyeball `jj stale-bookmarks` before deleting.
+# (Revset-alias names can't contain hyphens, hence the underscore.)
+'stale_bookmarks()' = 'bookmarks() ~ remote_bookmarks() ~ ::trunk()'
+
+[aliases]
+stale = ['log', '-r', 'stale()']       # review what tidy would abandon
+tidy  = ['abandon', '-r', 'stale()']   # abandon the orphaned commits
+stale-bookmarks = ['bookmark', 'list', '-r', 'stale_bookmarks()']  # review deletable local bookmarks

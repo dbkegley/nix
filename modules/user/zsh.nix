@@ -47,8 +47,11 @@
       [[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
       [[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
 
-      # jujutsu autocomplete
+      # jujutsu
       source <(COMPLETE=zsh jj)
+      jj-bookmark-prune() {
+        jj bookmark list -r 'stale_bookmarks()' -T 'name ++ "\n"' | xargs -r jj bookmark delete
+      }
     '';
   };
 }

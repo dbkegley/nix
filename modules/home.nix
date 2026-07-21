@@ -8,6 +8,7 @@
     ./user/packages.nix
     ./user/ghostty.nix
     ./user/git.nix
+    ./user/jj.nix
     ./user/helix.nix
     ./user/niri.nix
     ./user/noctalia.nix
