@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, isDarwin, ... }:
 {
 
   programs.git = {
@@ -14,7 +14,11 @@
       commit.gpgsign = true;
       gpg = {
         format = "ssh";
-        ssh.program = "/opt/1Password/op-ssh-sign";
+        ssh.program =
+          if isDarwin then
+            "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+          else
+            "/opt/1Password/op-ssh-sign";
       };
     };
   };

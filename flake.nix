@@ -29,9 +29,11 @@
     let
       inherit (self) outputs;
       system = "x86_64-linux";
+      darwinSystem = "aarch64-darwin";
     in
     {
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt;
+      formatter.${darwinSystem} = nixpkgs.legacyPackages.${darwinSystem}.nixfmt;
       overlays = import ./overlays { inherit inputs; };
 
       systemConfigs.arch = system-manager.lib.makeSystemConfig {
@@ -47,11 +49,33 @@
 
       homeConfigurations.arch = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
-        extraSpecialArgs = { inherit inputs outputs; };
+        extraSpecialArgs = {
+          inherit inputs outputs;
+          isDarwin = false;
+        };
         modules = [
           ./modules/kegs.nix
           ./modules/home.nix
           inputs.arch-package-sync.nixosModules.default
+        ];
+      };
+
+      homeConfigurations.darwin = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${darwinSystem};
+        extraSpecialArgs = {
+          inherit inputs outputs;
+          isDarwin = true;
+        };
+        modules = [
+          ./modules/kegs.nix
+          ./modules/home.nix
+          (
+            { config, ... }:
+            {
+              kegs.email = "david.kegley@posit.co";
+              kegs.homeDir = "/Users/${config.kegs.username}";
+            }
+          )
         ];
       };
     };

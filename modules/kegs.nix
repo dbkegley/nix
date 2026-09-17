@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, config, ... }:
 {
   options.kegs = {
     username = lib.mkOption {
@@ -12,6 +12,10 @@
     email = lib.mkOption {
       type = lib.types.str;
       default = "david@kegley.me";
+    };
+    homeDir = lib.mkOption {
+      type = lib.types.str;
+      default = "/home/${config.kegs.username}";
     };
   };
 }

@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, isDarwin, ... }:
 {
   programs.zsh = {
     enable = true;
@@ -10,13 +10,17 @@
       EDITOR = "hx";
     };
     shellAliases = {
-      hm-update = "home-manager switch --flake $HOME/nix/#arch";
+      hm-update = "home-manager switch --flake $HOME/nix/#${if isDarwin then "darwin" else "arch"}";
       hm-rollback = "home-manager generations | head -2 | tail -1 | awk '{print $NF}' | xargs -I{} sh -c '{}/activate'";
-      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
-      aps = "arch-package-sync --remove-orphans";
-      zed = "zeditor";
       k = "kubectl";
       ll = "ls -al --color=auto";
+    }
+
+    # arch only aliases
+    // lib.optionalAttrs (!isDarwin) {
+      zed = "zeditor";
+      sm-update = "system-manager switch --flake $HOME/nix#arch --sudo";
+      aps = "arch-package-sync --remove-orphans";
     };
 
     history = {
@@ -47,8 +51,18 @@
       [[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
       [[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
 
-      # jujutsu
-      source <(COMPLETE=zsh jj)
+      # Completions for tools that generate them at runtime. Native nixpkgs
+      # completions (git, gh, just, ...) are picked up automatically from
+      # fpath via enableCompletion; only runtime-generated ones go here.
+      # Each is guarded so a missing tool doesn't error on shell startup.
+
+      # aws uses a bash-style completer, so enable bashcompinit for `complete -C`.
+      autoload -Uz bashcompinit && bashcompinit
+
+      command -v jj >/dev/null && source <(COMPLETE=zsh jj)
+      command -v kubectl >/dev/null && source <(kubectl completion zsh)
+      command -v aws_completer >/dev/null && complete -C aws_completer aws
+
       jj-bookmark-prune() {
         jj bookmark list -r 'stale_bookmarks()' -T 'name ++ "\n"' | xargs -r jj bookmark delete
       }

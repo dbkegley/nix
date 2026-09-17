@@ -1,84 +1,102 @@
-{ pkgs, ... }:
 {
-  services.arch-package-sync = {
-    enable = true;
+  pkgs,
+  lib,
+  isDarwin,
+  ...
+}:
+lib.mkMerge [
+  {
+    home.packages =
+      (with pkgs.unstable; [
+        # developer tools
+        jq
+        gh
+        git
+        fzf
+        cmake
+        ripgrep
+        jujutsu
+        just
 
-    # These packages are installed as system packages via pacman/yay.
-    # Run arch-package-sync to install them after activating home-manager.
-    packages = [
-      # system utils
-      { name = "less"; }
-      { name = "vim"; }
+        # cloud
+        awscli2
+        kubectl
 
-      # secure boot
-      { name = "sbctl"; }
+        # nix
+        nil
+        nixd
+        nixfmt
 
-      # framework
-      { name = "mesa"; }
-      { name = "mesa-utils"; }
-      { name = "amd-ucode"; }
-      { name = "vulkan-radeon"; }
-      { name = "framework-system"; }
+        # go
+        go_1_27
+        golangci-lint
+        golangci-lint-langserver
 
-      # niri
-      { name = "niri"; }
-      { name = "gnome-keyring"; }
-      { name = "xwayland-satellite"; }
-      { name = "xdg-desktop-portal-gnome"; }
-      { name = "xdg-desktop-portal-gtk"; }
-      { name = "plasma-polkit-agent"; }
-      { name = "gpu-screen-recorder"; }
+        # rust
+        rustup
 
-      # desktop shell
-      { name = "greetd"; }
-      { name = "noctalia-greeter-git"; }
-      { name = "noctalia-shell"; }
-      { name = "cliphist"; }
+        # python
+        uv
+      ])
 
-      # applications
-      { name = "zed"; }
-      { name = "firefox"; }
-      { name = "ghostty"; }
-      { name = "1password"; }
-      { name = "1password-cli"; }
-      { name = "claude-code"; }
-      { name = "opencode"; }
+      # Linux system bootstrap
+      ++ lib.optionals (!isDarwin) [
+        pkgs.system-manager
+        pkgs.yay
+      ];
+  }
 
-      # temp antgame dev
-      # TODO: project-specific flake for this
-      { name = "odin"; }
-      { name = "ols"; }
-      { name = "raylib"; }
-    ];
-  };
+  # These packages are installed as system packages via pacman/yay.
+  # Run arch-package-sync to install them after activating home-manager.
+  (lib.optionalAttrs (!isDarwin) {
+    services.arch-package-sync = {
+      enable = true;
 
-  home.packages = with pkgs.unstable; [
-    # system bootstrap
-    pkgs.system-manager
-    pkgs.yay
-    jq
+      packages = [
+        # system utils
+        { name = "less"; }
+        { name = "vim"; }
 
-    # developer tools
-    fzf
-    gh
-    git
-    jujutsu
-    just
-    cmake
+        # secure boot
+        { name = "sbctl"; }
 
-    # nix
-    nil
-    nixd
-    nixfmt
+        # framework
+        { name = "mesa"; }
+        { name = "mesa-utils"; }
+        { name = "amd-ucode"; }
+        { name = "vulkan-radeon"; }
+        { name = "framework-system"; }
 
-    # go
-    go
-    golangci-lint
+        # niri
+        { name = "niri"; }
+        { name = "gnome-keyring"; }
+        { name = "xwayland-satellite"; }
+        { name = "xdg-desktop-portal-gnome"; }
+        { name = "xdg-desktop-portal-gtk"; }
+        { name = "plasma-polkit-agent"; }
+        { name = "gpu-screen-recorder"; }
 
-    # rust
-    rustup
+        # desktop shell
+        { name = "greetd"; }
+        { name = "noctalia-greeter-git"; }
+        { name = "noctalia-shell"; }
+        { name = "cliphist"; }
 
-    # python
-    uv
-  ];
-}
+        # applications
+        { name = "zed"; }
+        { name = "firefox"; }
+        { name = "ghostty"; }
+        { name = "1password"; }
+        { name = "1password-cli"; }
+        { name = "claude-code"; }
+        { name = "opencode"; }
+
+        # temp antgame dev
+        # TODO: project-specific flake for this
+        { name = "odin"; }
+        { name = "ols"; }
+        { name = "raylib"; }
+      ];
+    };
+  })
+]

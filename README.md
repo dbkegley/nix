@@ -26,7 +26,7 @@ sm-update   # system-manager switch --flake ~/nix#arch --sudo
 aps --update # system packages
 
 nix flake update nixpkgs # update stable
-nix flake update nixpkgs-unstable # update unstable 
+nix flake update nixpkgs-unstable # update unstable
 ```
 
 Reconcile native Arch packages with the declared list in `modules/user/packages.nix`:
