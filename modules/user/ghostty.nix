@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, isDarwin, ... }:
 {
   config = {
     programs.ghostty = {
@@ -10,6 +10,7 @@
       enableZshIntegration = true;
       settings = {
         theme = "Catppuccin Frappe";
+        font-family = "JetBrainsMono Nerd Font Mono";
         background-opacity = 0.9;
         background-blur = true;
         background-blur-radius = 20;
@@ -18,6 +19,7 @@
         window-padding-balance = true;
         mouse-hide-while-typing = true;
         mouse-scroll-multiplier = 2;
+        maximize = isDarwin;
         keybind = [
           "alt+t=new_tab"
           "alt+w=close_surface" # close the active tab or split
@@ -26,13 +28,12 @@
           "alt+h=previous_tab"
           "alt+l=next_tab"
           "alt+p=toggle_command_palette"
-          # Quick terminal global keybind disabled: niri does not implement the
-          # org.freedesktop.portal.GlobalShortcuts protocol, so ghostty's `global:`
-          # keybinds never fire while ghostty is unfocused. (It worked under Hyprland
-          # via its key-forwarding `pass` dispatcher, which niri has no equivalent for.)
-          # https://github.com/niri-wm/niri/discussions/2775
-          # "global:alt+space=toggle_quick_terminal"
-        ];
+        ]
+        # Global quick terminal works on macOS. On niri, `global:` keybinds never
+        # fire because niri does not implement org.freedesktop.portal.GlobalShortcuts,
+        # so this binding is darwin-only.
+        # https://github.com/niri-wm/niri/discussions/2775
+        ++ lib.optional isDarwin "global:alt+space=toggle_quick_terminal";
       };
     };
   };
