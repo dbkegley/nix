@@ -40,6 +40,13 @@
       url = "github:nvm-sh/nvm/v0.40.8";
       flake = false;
     };
+
+    # Personal fork of git@github.com:helix-ide/helix
+    #  - tracks plugin PR branch (mattwparas:steel-event-system)
+    #  - remaps ctrl-np to alt-jk for menu navigation
+    helix-steel = {
+      url = "github:dbkegley/helix/main";
+    };
   };
 
   outputs =

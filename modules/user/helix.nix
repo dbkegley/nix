@@ -1,14 +1,29 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  inputs,
+  config,
+  ...
+}:
 {
 
   config = {
+    home.sessionVariables.STEEL_HOME = "${config.home.homeDirectory}/.steel";
+
     xdg.configFile = {
       "helix/themes/catppuccin_transparent.toml".source =
         ../../config/helix/themes/catppuccin_transparent.toml;
+
+      # plugins are symlinks so the plugin is editable without a rebuild.
+      "helix/init.scm".source =
+        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/helix/init.scm";
+      "helix/helix.scm".source =
+        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/helix/helix.scm";
     };
 
     programs.helix = {
       enable = true;
+      # Steel plugin fork (mattwparas/helix, steel-event-system branch).
+      package = inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default;
       settings = {
         theme = "catppuccin_transparent";
         editor = {

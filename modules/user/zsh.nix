@@ -8,6 +8,7 @@
 
     sessionVariables = {
       EDITOR = "hx";
+      CARGO_NET_GIT_FETCH_WITH_CLI = "true";
     };
     shellAliases = {
       # On darwin, home-manager is activated by nix-darwin, so drive both via

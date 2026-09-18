@@ -20,13 +20,14 @@ Apply changes after editing the config:
 
 ```bash
 hm-update   # home-manager switch --flake ~/nix#arch
+            #   or
+            # darwin-rebuild switch --flake ~/nix#darwin
+
 sm-update   # system-manager switch --flake ~/nix#arch --sudo
 
 # periodic package updates
-aps --update # system packages
-
-nix flake update nixpkgs # update stable
-nix flake update nixpkgs-unstable # update unstable
+aps --update     # system packages (arch only)
+nix flake update # nixpkgs, flakes, etc.
 ```
 
 Reconcile native Arch packages with the declared list in `modules/user/packages.nix`:
