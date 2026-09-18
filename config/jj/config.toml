@@ -54,6 +54,19 @@ push-bookmark-prefix = "kegs-"
 'stale_bookmarks()' = 'bookmarks() ~ remote_bookmarks() ~ ::trunk()'
 
 [aliases]
-stale = ['log', '-r', 'stale()']       # review what tidy would abandon
-tidy  = ['abandon', '-r', 'stale()']   # abandon the orphaned commits
-stale-bookmarks = ['bookmark', 'list', '-r', 'stale_bookmarks()']  # review deletable local bookmarks
+# review deletable local bookmarks
+stale-bookmarks = ['bookmark', 'list', '-r', 'stale_bookmarks()']
+
+# review what tidy would abandon
+stale = ['log', '-r', 'stale()']
+
+# abandon the orphaned commits
+tidy  = ['abandon', '-r', 'stale()']
+
+# git cat-file -e to download missing object blobs
+backfill = ["util", "exec", "--", "bash", "-c", '''
+set -euo pipefail
+jj log --ignore-working-copy --no-graph -r "${1:-trunk() | mutable()}" -T 'commit_id ++ "\n"' \
+  | xargs git backfill --no-include-edges --no-walk
+jj workspace update-stale
+''', "jj-backfill"]

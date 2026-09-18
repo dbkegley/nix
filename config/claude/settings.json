@@ -1,0 +1,37 @@
+{
+  "extraKnownMarketplaces": {
+    "simple-english": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/AminBlg/SimpleEnglish.git"
+      }
+    }
+  },
+  "outputStyle": "simple-english:simple-english",
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "excludedCommands": ["just"]
+  },
+  "enabledPlugins": {
+    "simple-english@simple-english": true
+  },
+  "permissions": {
+    "deny": [
+      "mcp__ccd_host__sync_with_base_branch"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Monitor|mcp__terminal__run_in_terminal",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/block-vcs-writes.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

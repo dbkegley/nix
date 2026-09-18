@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   lib,
   isDarwin,
@@ -6,44 +7,57 @@
 }:
 lib.mkMerge [
   {
-    home.packages =
-      (with pkgs.unstable; [
-        # developer tools
-        jq
-        gh
-        git
-        fzf
-        cmake
-        ripgrep
-        jujutsu
-        just
+    home.packages = [
+      # jj from the pinned upstream commit (see the `jj` input in flake.nix).
+      inputs.jj.packages.${pkgs.stdenv.hostPlatform.system}.jujutsu
 
-        # cloud
-        awscli2
-        kubectl
+      # rig, the R installation manager (pkgs/r-rig).
+      #
+      # Run the following to avoid system-wide R installations:
+      #   $ rig system user-mode
+      #   $ rig add
+      #   $ R
+      #   R> install.packages('renv')
+      #   R> install.packages('languageserver')
+      pkgs.r-rig
+    ]
+    ++ (with pkgs.unstable; [
+      # developer tools
+      jq
+      gh
+      git
+      fzf
+      cmake
+      ripgrep
+      just
 
-        # nix
-        nil
-        nixd
-        nixfmt
+      # cloud
+      awscli2
+      kubectl
 
-        # go
-        go_1_27
-        golangci-lint
-        golangci-lint-langserver
+      # nix
+      nil
+      nixd
+      nixfmt
 
-        # rust
-        rustup
+      # go
+      gopls
+      go_1_27
+      golangci-lint
+      golangci-lint-langserver
 
-        # python
-        uv
-      ])
+      # rust
+      rustup
 
-      # Linux system bootstrap
-      ++ lib.optionals (!isDarwin) [
-        pkgs.system-manager
-        pkgs.yay
-      ];
+      # python
+      uv
+    ])
+
+    # Linux system bootstrap
+    ++ lib.optionals (!isDarwin) [
+      pkgs.system-manager
+      pkgs.yay
+    ];
   }
 
   # These packages are installed as system packages via pacman/yay.

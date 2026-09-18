@@ -35,7 +35,7 @@
 
           indent-guides = {
             render = true;
-            character = "⸽";
+            character = "┊";
             skip-levels = 1;
           };
 
@@ -52,8 +52,7 @@
 
         keys.normal = {
           G.b = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"; # git blame
-          space.w = ":w";
-          space.q = ":q";
+          Y = "yank_to_clipboard";
           esc = [
             "collapse_selection"
             "keep_primary_selection"
@@ -73,14 +72,14 @@
             ];
           }
           {
-            # uv tool install pyright
+            # uv tool install ty
             # uv tool install ruff
             # or install in .venv and start helix with: uv run hx ./
             # https://docs.astral.sh/ruff/editors/setup/#helix
             name = "python";
             auto-format = true;
             language-servers = [
-              "pyright"
+              "ty"
               "ruff"
             ];
           }
@@ -90,11 +89,6 @@
             formatter.command = "${pkgs.nixfmt}/bin/nixfmt";
           }
         ];
-
-        language-server.ruff = {
-          command = "ruff";
-          args = [ "server" ];
-        };
 
         language-server.rust-analyzer.config.check.command = "clippy";
 

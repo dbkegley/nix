@@ -10,7 +10,13 @@
       EDITOR = "hx";
     };
     shellAliases = {
-      hm-update = "home-manager switch --flake $HOME/nix/#${if isDarwin then "darwin" else "arch"}";
+      # On darwin, home-manager is activated by nix-darwin, so drive both via
+      # darwin-rebuild. On arch, home-manager is standalone.
+      hm-update =
+        if isDarwin then
+          "sudo darwin-rebuild switch --flake $HOME/nix#darwin"
+        else
+          "home-manager switch --flake $HOME/nix/#arch";
       hm-rollback = "home-manager generations | head -2 | tail -1 | awk '{print $NF}' | xargs -I{} sh -c '{}/activate'";
       k = "kubectl";
       ll = "ls -al --color=auto";
@@ -50,11 +56,6 @@
       # Also bind using terminfo if available
       [[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
       [[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
-
-      # Completions for tools that generate them at runtime. Native nixpkgs
-      # completions (git, gh, just, ...) are picked up automatically from
-      # fpath via enableCompletion; only runtime-generated ones go here.
-      # Each is guarded so a missing tool doesn't error on shell startup.
 
       # aws uses a bash-style completer, so enable bashcompinit for `complete -C`.
       autoload -Uz bashcompinit && bashcompinit
