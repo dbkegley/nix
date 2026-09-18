@@ -101,6 +101,10 @@ and does everything else in one command:
 ```bash
 git clone https://github.com/dbkegley/nix "$HOME/nix" && cd "$HOME/nix"
 nix --extra-experimental-features 'nix-command flakes' run nixpkgs#just -- bootstrap
+
+# or for darwin use:
+sudo nix --extra-experimental-features "nix-command flakes" run nix-darwin/nix-darwin-26.05#darwin-rebuild -- \
+  switch --flake ~/nix#darwin
 ```
 
 `just bootstrap` performs, in order:

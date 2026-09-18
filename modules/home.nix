@@ -51,17 +51,14 @@
     programs.home-manager.enable = true;
 
     nix = {
-      package = pkgs.nix;
+      # Standalone home-manager needs a package to generate nix.conf; under
+      # nix-darwin the system sets this, so defer to it with mkDefault.
+      package = lib.mkDefault pkgs.nix;
       settings = {
         experimental-features = [
           "nix-command"
           "flakes"
         ];
-        # auto-optimise-store is a restricted (daemon-side) setting and is
-        # ignored when set from a non-trusted user's nix.conf. Migrate this to
-        # the system nix.conf via nix-darwin (darwin) / system-manager (arch)
-        # once that's set up, so the daemon actually honours it.
-        # auto-optimise-store = true;
       };
 
       gc = {

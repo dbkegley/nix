@@ -35,7 +35,7 @@
 
           indent-guides = {
             render = true;
-            character = "⸽";
+            character = "┊";
             skip-levels = 1;
           };
 
@@ -52,8 +52,7 @@
 
         keys.normal = {
           G.b = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"; # git blame
-          space.w = ":w";
-          space.q = ":q";
+          Y = "yank_to_clipboard";
           esc = [
             "collapse_selection"
             "keep_primary_selection"

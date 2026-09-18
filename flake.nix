@@ -11,6 +11,11 @@
       url = "github:numtide/system-manager";
     };
 
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,6 +29,7 @@
       nixpkgs-unstable,
       home-manager,
       system-manager,
+      nix-darwin,
       ...
     }@inputs:
     let
@@ -60,20 +66,25 @@
         ];
       };
 
-      homeConfigurations.darwin = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.${darwinSystem};
-        extraSpecialArgs = {
-          inherit inputs outputs;
-          isDarwin = true;
-        };
+      darwinConfigurations.darwin = nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit inputs outputs; };
         modules = [
           ./modules/kegs.nix
-          ./modules/home.nix
+          ./modules/kegs-darwin.nix
+          ./modules/system/darwin.nix
+          home-manager.darwinModules.home-manager
           (
             { config, ... }:
             {
-              kegs.email = "david.kegley@posit.co";
-              kegs.homeDir = "/Users/${config.kegs.username}";
+              home-manager.extraSpecialArgs = {
+                inherit inputs outputs;
+                isDarwin = true;
+              };
+              home-manager.users.${config.kegs.username}.imports = [
+                ./modules/kegs.nix
+                ./modules/kegs-darwin.nix
+                ./modules/home.nix
+              ];
             }
           )
         ];
