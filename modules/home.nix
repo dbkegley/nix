@@ -11,8 +11,10 @@
     ./user/packages.nix
     ./user/ghostty.nix
     ./user/git.nix
+    ./user/claude-code.nix
     ./user/jj.nix
     ./user/helix.nix
+    ./user/nvm.nix
     ./user/ssh.nix
     ./user/starship.nix
     ./user/zed.nix

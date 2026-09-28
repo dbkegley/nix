@@ -252,6 +252,23 @@
         "type": "github"
       }
     },
+    "nvm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789957427,
+        "narHash": "sha256-24FP1brAAyWu+Q0Dk+Y4aXgdCBon9GkBXgFaGXBO7sc=",
+        "owner": "nvm-sh",
+        "repo": "nvm",
+        "rev": "a885b885fef16fac4bc544188fb25e9e37ae83e8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvm-sh",
+        "ref": "v0.40.8",
+        "repo": "nvm",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": [
@@ -289,6 +306,7 @@
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "nvm": "nvm",
         "system-manager": "system-manager"
       }
     },
