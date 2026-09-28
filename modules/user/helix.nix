@@ -52,6 +52,14 @@
 
         keys.normal = {
           G.b = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"; # git blame
+          G.d = [
+            ":new"
+            ":insert-output jj diff --name-only"
+            "select_all"
+            "split_selection_on_newline"
+            "trim_selections"
+            "goto_file"
+          ];
           Y = "yank_to_clipboard";
           esc = [
             "collapse_selection"

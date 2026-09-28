@@ -11,4 +11,9 @@
     source = ../../config/claude/hooks/block-vcs-writes.sh;
     executable = true;
   };
+
+  home.file.".claude/hooks/error-guidance.sh" = {
+    source = ../../config/claude/hooks/error-guidance.sh;
+    executable = true;
+  };
 }

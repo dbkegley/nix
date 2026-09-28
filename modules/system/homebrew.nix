@@ -16,14 +16,6 @@
   homebrew = {
     enable = true;
 
-    casks = [
-      # Claude Code CLI, stable channel (use "claude-code@latest" for the
-      # latest channel). Homebrew installs do not auto-update by default;
-      # CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1 in config/claude/settings.json
-      # lets Claude Code run the Homebrew upgrade itself in the background.
-      "claude-code"
-    ];
-
     onActivation = {
       # autoUpdate runs a full `brew update` on every switch, which is slow, so
       # it is off. upgrade keeps declared formulas current on each switch.

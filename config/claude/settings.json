@@ -1,6 +1,8 @@
 {
-  "env": {
-    "CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE": "1"
+  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
   },
   "permissions": {
     "deny": [
@@ -17,6 +19,18 @@
             "command": "~/.claude/hooks/block-vcs-writes.sh"
           }
         ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "~/.claude/hooks/error-guidance.sh" }]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "~/.claude/hooks/error-guidance.sh" }]
       }
     ]
   },
@@ -36,8 +50,10 @@
     "enabled": true,
     "allowUnsandboxedCommands": false,
     "excludedCommands": [
-      "just"
+      "just *",
+      "gh *"
     ]
   },
-  "theme": "dark"
+  "theme": "dark",
+  "model": "opus"
 }

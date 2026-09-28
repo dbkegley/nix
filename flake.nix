@@ -32,6 +32,14 @@
     # locked inputs. To move to a newer commit, change the rev and run
     # `nix flake lock`.
     jj.url = "github:jj-vcs/jj/f1b29bced933e289096a9c98276153e29dd95674";
+
+    # nvm (Node Version Manager) is a shell script that nixpkgs does not
+    # package, so its repository is pinned to a release tag. To update, change
+    # the tag and run `nix flake lock`.
+    nvm = {
+      url = "github:nvm-sh/nvm/v0.40.8";
+      flake = false;
+    };
   };
 
   outputs =
