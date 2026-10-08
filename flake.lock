@@ -107,17 +107,33 @@
         "type": "github"
       }
     },
+    "helix-file-watcher": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786237312,
+        "narHash": "sha256-auqS4wcJGCUJXzRVj4neQLJnqErvty3+3shfq5DU/pg=",
+        "owner": "mattwparas",
+        "repo": "helix-file-watcher",
+        "rev": "8cd0726da47be4a1011c3246ff308c1dfefda9d1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattwparas",
+        "repo": "helix-file-watcher",
+        "type": "github"
+      }
+    },
     "helix-steel": {
       "inputs": {
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1791486955,
-        "narHash": "sha256-Rjel4ch9ntXme5K/5mMGdAaKnBh0pmXBbRR0DyOdSec=",
+        "lastModified": 1791492209,
+        "narHash": "sha256-lffmfoaTr4/1obOfAurB8+lpPUzhqKVq03PBZy5PxDI=",
         "owner": "dbkegley",
         "repo": "helix",
-        "rev": "84dfd15b17b71826d8f9673a331b601db4e098b6",
+        "rev": "57c66459a0b54daf2aefabd86d419561d05710b3",
         "type": "github"
       },
       "original": {
@@ -336,6 +352,7 @@
     "root": {
       "inputs": {
         "arch-package-sync": "arch-package-sync",
+        "helix-file-watcher": "helix-file-watcher",
         "helix-steel": "helix-steel",
         "home-manager": "home-manager",
         "jj": "jj",
