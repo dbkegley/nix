@@ -47,6 +47,12 @@
     helix-steel = {
       url = "github:dbkegley/helix/main";
     };
+
+    # Steel plugin for helix that reloads open files when they change on disk.
+    helix-file-watcher = {
+      url = "github:mattwparas/helix-file-watcher";
+      flake = false;
+    };
   };
 
   outputs =

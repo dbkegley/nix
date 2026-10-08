@@ -16,6 +16,10 @@
           else
             "~/.1password/agent.sock";
       };
+      "i-* mi-*" = {
+        ProxyCommand = "sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"";
+        IdentityFile = "~/.ssh/connect-infrastructure.pem";
+      };
     };
   };
 }

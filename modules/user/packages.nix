@@ -33,6 +33,7 @@ lib.mkMerge [
 
       # cloud
       awscli2
+      ssm-session-manager-plugin
 
       # nix
       nil

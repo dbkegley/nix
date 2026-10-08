@@ -4,20 +4,31 @@
   config,
   ...
 }:
+let
+  sharedLib = pkgs.stdenv.hostPlatform.extensions.sharedLibrary;
+in
 {
 
   config = {
-    home.sessionVariables.STEEL_HOME = "${config.home.homeDirectory}/.steel";
+    home.sessionVariables = {
+      STEEL_HOME = "${config.home.homeDirectory}/.steel";
+      STEEL_SEARCH_PATHS = "${config.xdg.configHome}/helix/plugins";
+    };
+
+    # Steel loads plugin libraries only from $STEEL_HOME/native.
+    home.file.".steel/native/libhelix_file_watcher${sharedLib}".source =
+      "${pkgs.helix-file-watcher}/lib/libhelix_file_watcher${sharedLib}";
 
     xdg.configFile = {
       "helix/themes/catppuccin_transparent.toml".source =
         ../../config/helix/themes/catppuccin_transparent.toml;
 
-      # plugins are symlinks so the plugin is editable without a rebuild.
+      # init.scm is a symlink so it is editable without a rebuild.
       "helix/init.scm".source =
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/helix/init.scm";
-      "helix/helix.scm".source =
-        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix/config/helix/helix.scm";
+
+      # Plugin modules, found through STEEL_SEARCH_PATHS.
+      "helix/plugins/helix-file-watcher".source = "${pkgs.helix-file-watcher}/share/helix-file-watcher";
     };
 
     programs.helix = {
