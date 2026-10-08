@@ -33,7 +33,6 @@ lib.mkMerge [
 
       # cloud
       awscli2
-      kubectl
 
       # nix
       nil

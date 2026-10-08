@@ -14,6 +14,7 @@
     ./user/claude-code.nix
     ./user/jj.nix
     ./user/helix.nix
+    ./user/kubectl.nix
     ./user/nvm.nix
     ./user/ssh.nix
     ./user/starship.nix

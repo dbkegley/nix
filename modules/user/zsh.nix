@@ -61,7 +61,6 @@
       autoload -Uz bashcompinit && bashcompinit
 
       command -v jj >/dev/null && source <(COMPLETE=zsh jj)
-      command -v kubectl >/dev/null && source <(kubectl completion zsh)
       command -v aws_completer >/dev/null && complete -C aws_completer aws
 
       jj-bookmark-prune() {
