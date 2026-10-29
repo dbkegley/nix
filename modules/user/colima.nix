@@ -11,7 +11,12 @@
 # nerdctl inside the VM. The `docker` and `nerdctl` wrappers below reach it with
 # `colima nerdctl --`. A host nerdctl from nixpkgs would not work, because it
 # looks for a local containerd that macOS does not have.
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 let
   colimaPkg = pkgs.unstable.colima;
 
@@ -38,12 +43,48 @@ let
     pkgs.writeShellScriptBin name ''
       exec ${colimaPkg}/bin/colima nerdctl -- --namespace k8s.io "$@"
     '';
+
+  # nerdctl has no buildx subcommand, so bake and other buildx features need
+  # the standalone buildx client. It runs on the host and sends builds to the
+  # VM's buildkitd through the socket that colima forwards to the profile
+  # directory. Because buildx runs on the host, bake files see the host
+  # environment, which `colima nerdctl` does not pass into the VM.
+  buildxPkg = pkgs.unstable.docker-buildx;
+  buildxExe = "${buildxPkg}/bin/docker-buildx";
+  buildkitSocket = "${config.kegs.homeDir}/.colima/default/buildkitd.sock";
+
+  buildx = pkgs.writeShellScriptBin "buildx" ''
+    exec ${buildxExe} "$@"
+  '';
+
+  # `docker buildx ...` goes to buildx. Every other subcommand goes to nerdctl.
+  # Only a leading `buildx` is routed; global Docker flags before it are not
+  # supported.
+  docker = pkgs.writeShellScriptBin "docker" ''
+    if [ "''${1:-}" = buildx ]; then
+      shift
+      exec ${buildxExe} "$@"
+    fi
+    exec ${colimaPkg}/bin/colima nerdctl -- --namespace k8s.io "$@"
+  '';
 in
 {
   home.packages = [
-    (mkWrapper "docker")
+    docker
+    buildx
     (mkWrapper "nerdctl")
   ];
+
+  # Registers a buildx builder named `colima` that uses the remote driver on
+  # the forwarded buildkitd socket, and makes it the default. buildx stores
+  # builders under ~/.docker/buildx. Creating the builder does not connect to
+  # the socket, so this works while colima is stopped.
+  home.activation.buildxColimaBuilder = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if ! ${buildxExe} inspect colima >/dev/null 2>&1; then
+      run ${buildxExe} create --name colima --driver remote \
+        "unix://${buildkitSocket}" --use
+    fi
+  '';
 
   # home-manager's colima module installs colima, writes the profile's
   # colima.yaml from `settings`, and adds a launchd agent
@@ -80,9 +121,14 @@ in
         mountType = "virtiofs";
         portForwarder = "ssh";
         autoActivate = true;
+        # Root in the VM, and any container that bind-mounts a mounted path, can
+        # write to these folders. Only ~/code is mounted, so the VM cannot reach
+        # ~/.ssh or shell profiles. `colima nerdctl` starts in the current
+        # directory, so `docker build .` and relative `-v` paths work only
+        # inside a mounted folder. A change here needs `colima restart`.
         mounts = [
           {
-            location = config.kegs.homeDir;
+            location = "${config.kegs.homeDir}/code";
             writable = true;
           }
         ];
@@ -94,6 +140,22 @@ in
       };
     };
   };
+
+  # buildkitd's containerd worker writes images to the `buildkit` namespace
+  # unless its config names one. Setting it to k8s.io puts images from buildx
+  # (with `type=image` output) in the store that the wrappers and Kubernetes
+  # read, and lets `nerdctl build` skip its tar export and import.
+  home.file.".colima/default/containerd/buildkitd.toml".text = ''
+    [worker.oci]
+    enabled = false
+
+    [worker.containerd]
+    enabled = true
+    namespace = "k8s.io"
+
+    [grpc]
+    gid = 1000
+  '';
 
   # colima wrote this file when it created the VM. The nix-managed file above
   # holds the same settings, so replace it instead of failing the switch.

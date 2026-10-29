@@ -19,7 +19,7 @@ rule() {
 }
 
 rule 'colima is not running' \
-  'Colima is running. This error means that just ran inside the sandbox, because the command was not a plain just call. Run just as the whole command, with no cd, &&, ;, pipes, or redirects. For a worktree or jj workspace, put the path before the recipe name, for example: just .claude/worktrees/work1/test connect/store'
+  'Colima is running. This error means that a colima, docker, or nerdctl command ran inside the sandbox, which blocks the connection to the Colima VM. If the command was a just recipe, run just as the whole command, with no cd, &&, ;, pipes, or redirects. For a worktree or jj workspace, put the path before the recipe name, for example: just .claude/worktrees/work1/test connect/store. For any other colima, docker, or nerdctl command, give the user the exact command to run in their terminal.'
 
 rule 'x509: OSStatus -26276|tls: failed to verify certificate' \
   'This error means that gh ran inside the sandbox, because the command was not a plain gh call. Run gh as the whole command, with no cd, &&, ;, pipes, or redirects. To filter the output, use --json with --jq. Do not use curl with the gh token.'
