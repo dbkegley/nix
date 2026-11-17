@@ -7,7 +7,7 @@
     syntaxHighlighting.enable = true;
 
     sessionVariables = {
-      EDITOR = "hx";
+      EDITOR = "ms";
       CARGO_NET_GIT_FETCH_WITH_CLI = "true";
     };
     shellAliases = {

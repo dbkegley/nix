@@ -185,6 +185,24 @@
         "type": "github"
       }
     },
+    "mitos": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1794910742,
+        "narHash": "sha256-AmRvOcUrEC974zJZB0ekH5U3oyJlkJiUKOzOsiqbhBI=",
+        "owner": "mitos-editor",
+        "repo": "mitos",
+        "rev": "8928171941765a2b39f0c588530ff098b83cda78",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mitos-editor",
+        "repo": "mitos",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -274,6 +292,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1790185690,
+        "narHash": "sha256-xJ+X4hBtOcAFGBOe5nAMyMUeF9foJBmIOu3NjBqBycU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "4975466d324710c576dc11ad614684e6bd8cad8e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1793015021,
         "narHash": "sha256-Ee5BWo8sh3pGt70QUdRajnaginqFmWvrtdBc4gJzhks=",
         "owner": "nixos",
@@ -288,7 +322,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1791048980,
         "narHash": "sha256-KgItSKML8Xvte0B7/uGnBDsYzSnnKHcOaiUbgWBXLXw=",
@@ -356,9 +390,10 @@
         "helix-steel": "helix-steel",
         "home-manager": "home-manager",
         "jj": "jj",
+        "mitos": "mitos",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_4",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvm": "nvm",
         "system-manager": "system-manager"
@@ -409,7 +444,7 @@
     "system-manager": {
       "inputs": {
         "flake-compat": "flake-compat",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_5",
         "userborn": "userborn"
       },
       "locked": {

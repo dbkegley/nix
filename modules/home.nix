@@ -15,6 +15,7 @@
     ./user/jj.nix
     ./user/helix.nix
     ./user/kubectl.nix
+    ./user/mitos.nix
     ./user/nvm.nix
     ./user/ssh.nix
     ./user/starship.nix

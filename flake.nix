@@ -48,6 +48,12 @@
       url = "github:dbkegley/helix/main";
     };
 
+    # Mitos editor (installs the `ms` binary), built from source with the
+    # upstream flake. To update, run `nix flake update mitos`.
+    mitos = {
+      url = "github:mitos-editor/mitos";
+    };
+
     # Steel plugin for helix that reloads open files when they change on disk.
     helix-file-watcher = {
       url = "github:mattwparas/helix-file-watcher";
