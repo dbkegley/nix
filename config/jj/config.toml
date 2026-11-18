@@ -70,3 +70,20 @@ jj log --ignore-working-copy --no-graph -r "${1:-trunk() | mutable()}" -T 'commi
   | xargs git backfill --no-include-edges --no-walk
 jj workspace update-stale
 ''', "jj-backfill"]
+
+# `jj pr-review <pr> [base]` starts a new commit on the merge-base of <pr> and
+# [base] (default: main) and restores <pr>'s tree into it, so the whole PR
+# changeset shows up in `jj diff` at @. <pr> and [base] are revsets, so
+# `feature@origin` or `trunk()` work too.
+pr-review = ["util", "exec", "--", "bash", "-c", '''
+set -euo pipefail
+if [ -z "${1:-}" ]; then
+  echo "Usage: jj pr-review <pr-bookmark> [base-bookmark]" >&2
+  exit 1
+fi
+PR="$1"
+BASE="${2:-main}"
+jj new "heads(::($BASE) & ::($PR))" -m "PR diff: $PR"
+jj restore --from "$PR"
+jj diff --stat
+''', "jj-pr-review"]
