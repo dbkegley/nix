@@ -102,7 +102,6 @@ lib.mkMerge [
         { name = "ghostty"; }
         { name = "1password"; }
         { name = "1password-cli"; }
-        { name = "opencode"; }
 
         # temp antgame dev
         # TODO: project-specific flake for this

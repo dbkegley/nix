@@ -210,7 +210,7 @@ binds {
     Mod+Z hotkey-overlay-title="Open IDE: zed" { spawn-sh "FOS_SPAWN=zeditor ~/.config/niri/scripts/focus-or-spawn.sh dev.zed.zed"; }
     Mod+B hotkey-overlay-title="Open browser: firefox" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh firefox"; }
     Mod+P hotkey-overlay-title="Open 1password: 1password" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh 1password"; }
-    Mod+Return hotkey-overlay-title="Open terminal: ghostty" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh com.mitchellh.ghostty"; }
+    Mod+Semicolon hotkey-overlay-title="Open terminal: ghostty" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh com.mitchellh.ghostty"; }
 
     Mod+Space hotkey-overlay-title="Toggle app launcher" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
     Mod+V hotkey-overlay-title="Toggle clipboard history" { spawn-sh "qs -c noctalia-shell ipc call launcher clipboard"; }

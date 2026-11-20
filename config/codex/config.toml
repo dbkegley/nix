@@ -1,0 +1,41 @@
+sandbox_mode = "workspace-write"
+approval_policy = "never"
+
+developer_instructions = """
+When drafting commit messages or pull requests, omit AI attribution, including Co-authored-by trailers for AI assistants and generated-by footers. Prefer jj instead of git for source control, only falling back to git if jj is unavailable.
+"""
+
+[marketplaces.simple-english]
+source_type = "local"
+source = "/home/david/.codex/marketplaces/simple-english"
+
+[plugins."simple-english@simple-english"]
+enabled = true
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '"$HOME/.codex/hooks/block-vcs-writes"'
+
+[hooks.state]
+
+[hooks.state."/home/david/.codex/config.toml:pre_tool_use:0:0"]
+trusted_hash = "sha256:32967b40bdac4bdd9c0a5e1326e340e0d10e55d8aec31dcb536e1dfc023cc76e"
+
+[tui]
+screen_reader_detection_done = true
+
+[tui.keymap.list]
+move_down = ["down", "alt-j"]
+move_up = ["up", "alt-k"]
+
+[tui.model_availability_nux]
+"gpt-6.1-sol" = 3
+
+[projects."/home/david/nix"]
+trust_level = "trusted"
+
+[projects."/home/david/code/dbkegley/mitos"]
+trust_level = "trusted"

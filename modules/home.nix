@@ -24,9 +24,9 @@
   ]
   # Linux-only modules
   ++ lib.optionals (!isDarwin) [
+    ./user/codex.nix
     ./user/niri.nix
     ./user/noctalia.nix
-    ./user/opencode.nix
   ]
   # Darwin-only modules
   ++ lib.optionals isDarwin [
