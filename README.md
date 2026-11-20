@@ -47,7 +47,7 @@ Core tooling this repo configures and/or installs:
 
 **Desktop**
 - [niri](https://github.com/YaLTeR/niri) — scrollable-tiling Wayland compositor
-- [noctalia-shell](https://github.com/noctalia-dev/noctalia-shell) — desktop shell (bar, launcher, greeter)
+- [Noctalia](https://github.com/noctalia-dev/noctalia) — desktop shell (bar, launcher, lock screen)
 - [greetd](https://sr.ht/~kennylevinsen/greetd/) — minimal login/display manager
 - [gnome-keyring](https://wiki.archlinux.org/title/GNOME/Keyring) — secret storage, auto-unlocked on login
 

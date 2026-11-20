@@ -135,10 +135,10 @@ layout {
 // See the binds section below for more spawn examples.
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
-spawn-at-startup "qs" "-c" "noctalia-shell"
+spawn-at-startup "noctalia"
 
 switch-events {
-    lid-close { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+    lid-close { spawn "noctalia" "msg" "session" "lock"; }
 }
 
 hotkey-overlay {
@@ -158,7 +158,7 @@ prefer-no-csd
 // The path is formatted with strftime(3) to give you the screenshot date and time.
 screenshot-path "~/Pictures/Screenshots/Screenshot %Y-%m-%d %H-%M-%S.png"
 
-// https://docs.noctalia.dev/v4/getting-started/compositor-settings/niri/
+// https://docs.noctalia.dev/noctalia/v5.5.0/compositor-settings/niri/
 window-rule {
   // Rounded corners for a modern look.
   geometry-corner-radius 10
@@ -174,7 +174,7 @@ debug {
 
 // Set the regular wallpaper on the backdrop.
 layer-rule {
-  match namespace="^noctalia-wallpaper*"
+  match namespace="^noctalia-wallpaper"
   place-within-backdrop true
 }
 
@@ -212,8 +212,8 @@ binds {
     Mod+P hotkey-overlay-title="Open 1password: 1password" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh 1password"; }
     Mod+Semicolon hotkey-overlay-title="Open terminal: ghostty" { spawn-sh "~/.config/niri/scripts/focus-or-spawn.sh com.mitchellh.ghostty"; }
 
-    Mod+Space hotkey-overlay-title="Toggle app launcher" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
-    Mod+V hotkey-overlay-title="Toggle clipboard history" { spawn-sh "qs -c noctalia-shell ipc call launcher clipboard"; }
+    Mod+Space hotkey-overlay-title="Toggle app launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+V hotkey-overlay-title="Toggle clipboard history" { spawn-sh "noctalia msg panel-toggle clipboard"; }
 
     // Example volume keys mappings for PipeWire & WirePlumber.
     // The allow-when-locked=true property makes them work even when the session is locked.
@@ -243,7 +243,7 @@ binds {
     Mod+O repeat=false { toggle-overview; }
 
     Mod+W repeat=false { close-window; }
-    Mod+Q hotkey-overlay-title="Lock the screen" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
+    Mod+Q hotkey-overlay-title="Lock the screen" { spawn-sh "noctalia msg session lock"; }
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
     Mod+Shift+Q { power-off-monitors; }

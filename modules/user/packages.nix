@@ -93,7 +93,7 @@ lib.mkMerge [
         # desktop shell
         { name = "greetd"; }
         { name = "noctalia-greeter-git"; }
-        { name = "noctalia-shell"; }
+        { name = "noctalia"; }
         { name = "cliphist"; }
 
         # applications

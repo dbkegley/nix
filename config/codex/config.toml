@@ -32,7 +32,7 @@ move_down = ["down", "alt-j"]
 move_up = ["up", "alt-k"]
 
 [tui.model_availability_nux]
-"gpt-6.1-sol" = 3
+"gpt-6.1-sol" = 4
 
 [projects."/home/david/nix"]
 trust_level = "trusted"
